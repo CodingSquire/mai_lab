@@ -33,10 +33,12 @@ func generatePasswordHash(password string) string {
 
 type usersMap map[key]User
 
+var users = usersMap{}
+
 // Можно добавить проверку по email
-func (users usersMap) checkUserID(ID key) bool {
-	if _, ok := users[ID]; ok {
-		fmt.Println("User %s exist", ID)
+func (u usersMap) checkUserID(ID key) bool {
+	if _, ok := u[ID]; ok {
+		fmt.Println("User ", ID, " exist")
 		return true
 	} else {
 		fmt.Println("User not found")
@@ -63,7 +65,7 @@ func (u *User) WriteJSON(w io.Writer) error {
 //	return err
 //}
 
-func (users usersMap) CreateUser(b []byte) bool {
+func CreateUser(b []byte) bool {
 	u := User{}
 	err := json.Unmarshal(b, &u)
 	if err == nil && !users.checkUserID(u.Login) {
@@ -74,7 +76,7 @@ func (users usersMap) CreateUser(b []byte) bool {
 	return false
 }
 
-func (users usersMap) GetUser(login key) (User, error) {
+func GetUser(login key) (User, error) {
 	if exist := users.checkUserID(login); exist {
 		return users[login], nil
 	} else {
@@ -82,9 +84,9 @@ func (users usersMap) GetUser(login key) (User, error) {
 	}
 }
 
-func NewUsers() usersMap {
-	return make(usersMap)
-}
+//func NewUsers() usersMap {
+//	return make(usersMap)
+//}
 
 //func main() {
 //
