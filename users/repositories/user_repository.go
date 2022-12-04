@@ -8,7 +8,7 @@ import (
 
 type UserRepository interface {
 	Get(id uuid.UUID) (*model.User, error)
-	GetAll() ([]model.User, error)
+	GetAll() []model.User
 	Create(user *model.User) error
 	Update(user *model.User) error
 	Delete(id uuid.UUID) error

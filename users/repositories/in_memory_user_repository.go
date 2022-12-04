@@ -10,18 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type InMemoryUserRepository struct {
+type inMemoryUserRepository struct {
 	users map[uuid.UUID]*models.User
 	mu    sync.RWMutex
 }
 
-func NewInMemoryUserRepository() *InMemoryUserRepository {
-	return &InMemoryUserRepository{
+func NewInMemoryUserRepository() UserRepository {
+	return &inMemoryUserRepository{
 		users: make(map[uuid.UUID]*models.User),
 	}
 }
 
-func (r *InMemoryUserRepository) Get(id uuid.UUID) (*models.User, error) {
+func (r *inMemoryUserRepository) Get(id uuid.UUID) (*models.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -33,7 +33,7 @@ func (r *InMemoryUserRepository) Get(id uuid.UUID) (*models.User, error) {
 	return user, nil
 }
 
-func (r *InMemoryUserRepository) GetAll() ([]models.User, error) {
+func (r *inMemoryUserRepository) GetAll() []models.User {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -42,10 +42,10 @@ func (r *InMemoryUserRepository) GetAll() ([]models.User, error) {
 		users = append(users, *user)
 	}
 
-	return users, nil
+	return users
 }
 
-func (r *InMemoryUserRepository) Create(user *models.User) error {
+func (r *inMemoryUserRepository) Create(user *models.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -60,7 +60,7 @@ func (r *InMemoryUserRepository) Create(user *models.User) error {
 	return nil
 }
 
-func (r *InMemoryUserRepository) Update(user *models.User) error {
+func (r *inMemoryUserRepository) Update(user *models.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -74,7 +74,7 @@ func (r *InMemoryUserRepository) Update(user *models.User) error {
 	return nil
 }
 
-func (r *InMemoryUserRepository) Delete(id uuid.UUID) error {
+func (r *inMemoryUserRepository) Delete(id uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

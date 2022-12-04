@@ -10,8 +10,8 @@ import (
 )
 
 func TestInMemoryUserRepository(t *testing.T) {
-	creatingAndGettingUsers(t)
-	deletingUsers(t)
+	t.Run("Creating and getting users", creatingAndGettingUsers)
+	t.Run("Deleting users", deletingUsers)
 }
 
 func creatingAndGettingUsers(t *testing.T) {
@@ -61,10 +61,7 @@ func creatingAndGettingUsers(t *testing.T) {
 		}
 	}
 
-	allUsers, err := repo.GetAll()
-	if err != nil {
-		t.Errorf("Error getting all users: %s", err)
-	}
+	allUsers := repo.GetAll()
 
 	if len(allUsers) != len(users)+1 {
 		t.Errorf("Expected %d users, got %d", len(users)+1, len(allUsers))
