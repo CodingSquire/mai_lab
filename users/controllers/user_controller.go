@@ -57,9 +57,10 @@ func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	users := c.service.GetAllUsers()
 
-	var usersResponse []dtos.UserResponseDto
+	usersResponse := []dtos.UserResponseDto{}
 	for _, user := range users {
 		userResponse := dtos.UserResponseDto{}
+
 		usersResponse = append(usersResponse, userResponse.FromUser(&user))
 	}
 

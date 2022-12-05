@@ -14,12 +14,11 @@ type UserResponseDto struct {
 	Email     string    `json:"email"`
 }
 
-func (user UserResponseDto) FromUser(u *models.User) UserResponseDto {
-	return UserResponseDto{
-		ID:        u.ID,
-		Username:  u.Username,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-	}
+func (u *UserResponseDto) FromUser(user *models.User) UserResponseDto {
+	u.ID = user.ID
+	u.Username = user.Username
+	u.FirstName = user.FirstName
+	u.LastName = user.LastName
+	u.Email = user.Email
+	return *u
 }

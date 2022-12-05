@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"users/controllers"
 	"users/ctxkeys"
+	m "users/middlewares"
 )
 
 type route struct {
@@ -56,6 +57,6 @@ func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 
 func (r *Router) Run(port string) {
 	r.setupRoutes()
-	http.HandleFunc("/", r.serve)
+	http.Handle("/", m.Adapt(http.HandlerFunc(r.serve), m.LoggingMiddleware()))
 	http.ListenAndServe(":"+port, nil)
 }
