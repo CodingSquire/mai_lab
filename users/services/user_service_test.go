@@ -106,7 +106,6 @@ func testGetAllUsers(t *testing.T, mock *gomock.Controller) {
 func testGetUserById_UserNotExist(t *testing.T, mock *gomock.Controller) {
 	var notExistingUserID = uuid.New()
 	mockUserRepository := mocks.NewMockUserRepository(mock)
-	// expect that Get method will be called with notExistingUserID and error will be returned
 	mockUserRepository.EXPECT().Get(notExistingUserID).Return(nil, errors.New("user not found"))
 	userService := services.NewUserService(mockUserRepository)
 	user, err := userService.GetUserById(notExistingUserID)
