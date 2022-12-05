@@ -2,7 +2,10 @@ package main
 
 import (
 	"os"
+	"users/controllers"
+	"users/repositories"
 	"users/routers"
+	"users/services"
 )
 
 func main() {
@@ -11,7 +14,9 @@ func main() {
 		port = "8080"
 	}
 
-	router := routers.NewRouter()
-	router.SetupRoutes()
+	userRepository := repositories.NewInMemoryUserRepository()
+	userService := services.NewUserService(userRepository)
+	userController := controllers.NewUserController(userService)
+	router := routers.NewRouter(userController)
 	router.Run(port)
 }

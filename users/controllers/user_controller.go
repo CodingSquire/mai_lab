@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"users/ctxkeys"
 	"users/dtos"
 	"users/services"
 
@@ -27,8 +28,13 @@ func NewUserController(service services.UserService) UserController {
 	}
 }
 
+func prepareResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
 func (c *userController) GetUserById(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	prepareResponse(w, r)
+	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -44,11 +50,11 @@ func (c *userController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	userResponse := dtos.UserResponseDto{}
 	userResponse.FromUser(user)
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userResponse)
 }
 
 func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
 	users := c.service.GetAllUsers()
 
 	var usersResponse []dtos.UserResponseDto
@@ -58,11 +64,11 @@ func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(usersResponse)
 }
 
 func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
 	var userRequest dtos.UserRequestDto
 	err := json.NewDecoder(r.Body).Decode(&userRequest)
 	if err != nil {
@@ -72,8 +78,8 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	userValidator := dtos.NewUserValidator(userRequest)
 	if !userValidator.IsValid() {
-		json.NewEncoder(w).Encode(userValidator.Errors)
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(userValidator.Errors)
 		return
 	}
 
@@ -81,8 +87,8 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.CreateUser(user)
 	if err != nil {
-		json.NewEncoder(w).Encode(err)
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 
@@ -90,7 +96,8 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	prepareResponse(w, r)
+	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -106,8 +113,8 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	userValidator := dtos.NewUserValidator(userRequest)
 	if !userValidator.IsValid() {
-		json.NewEncoder(w).Encode(userValidator.Errors)
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(userValidator.Errors)
 		return
 	}
 
@@ -116,8 +123,8 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.UpdateUser(user)
 	if err != nil {
-		json.NewEncoder(w).Encode(err)
 		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 
@@ -125,7 +132,8 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	prepareResponse(w, r)
+	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -134,8 +142,8 @@ func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.DeleteUser(userId)
 	if err != nil {
-		json.NewEncoder(w).Encode(err)
 		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 
