@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"orders/table"
 	"regexp"
 	"strings"
 )
@@ -32,9 +33,23 @@ func (h *HttpApp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *HttpApp) Run(port string) error {
-	a.router.PrettyPrint()
-	fmt.Printf("Listening on port: %s\n", port)
+	fmt.Println(a.MakeInfoTable(port))
 	return http.ListenAndServe(":"+port, a)
+}
+
+func (a *HttpApp) MakeInfoTable(port string) string {
+	var table table.TableBuilder
+
+	for _, route := range a.router.routes {
+		table.AppendRoute(route.Method, route.OrigPath)
+	}
+
+	table.AppendLine("Runtime:")
+	table.AppendLine("localhost:"+port)
+
+	table.PrependLine("Routes:")
+
+	return table.String()
 }
 
 func parsePattern(pattern string) *regexp.Regexp {
@@ -64,11 +79,11 @@ func (a *HttpApp) Manage(key string, state interface{}) {
 func (a *HttpApp) SetHandler(method string, strPattern string, handler RouterHandler) {
 	pattern := parsePattern(strPattern)
 
-	newroutes := append(a.router.routes, innerRouter{
-		origPath: strPattern,
-		method:   method,
-		pattern:  pattern,
-		handler:  handler,
+	newroutes := append(a.router.routes, Route{
+		OrigPath: strPattern,
+		Method:   method,
+		Pattern:  pattern,
+		Handler:  handler,
 	})
 
 	a.router.routes = newroutes

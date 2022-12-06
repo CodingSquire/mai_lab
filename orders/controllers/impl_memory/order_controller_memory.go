@@ -1,6 +1,7 @@
 package implmemory
 
 import (
+	"orders/controllers"
 	"orders/models"
 )
 
@@ -10,7 +11,7 @@ type OrderMemController struct {
 
 const CONTROLLERKEY = "orderController"
 
-func NewOrderMemController() *OrderMemController {
+func NewOrderMemController() controllers.OrderController {
 	return &OrderMemController{
 		_memory: make(map[string]*models.Order),
 	}
