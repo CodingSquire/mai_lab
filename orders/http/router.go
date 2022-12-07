@@ -1,31 +1,67 @@
 package http
 
 import (
-	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"reflect"
 	"regexp"
 )
 
 type RouteContext struct {
-	params   map[string]string
-	_request *http.Request
+	w      http.ResponseWriter
+	params map[string]string
+	state  *map[string]interface{}
+	R      *http.Request
 }
 
-type RouterHandler func(w http.ResponseWriter, r *http.Request)
+type ResponseWriter http.ResponseWriter
+
+type RouteHandler func(r *RouteContext)
+type MiddlwareRouterHandler func(w ResponseWriter, r *http.Request)
 
 type Route struct {
-	Method  string
+	Method   string
 	OrigPath string
-	Pattern *regexp.Regexp
-	Handler RouterHandler
+	Pattern  *regexp.Regexp
+	Handler  RouteHandler
 }
 
 type Router struct {
-	middlewares []RouterHandler
-	routes []Route
+	middlewares []MiddlwareRouterHandler
+	routes      []Route
 }
 
-const PARAMS = "params"
+func (r *RouteContext) Params(key string) string {
+	return r.params[key]
+}
+
+func (r *RouteContext) State(toGet interface{}) {
+	targetType := reflect.TypeOf(toGet)
+
+	d := (*r.state)[targetType.String()]
+
+	//Actually set found struct
+	reflect.ValueOf(toGet).Elem().Set(reflect.ValueOf(d).Elem())
+}
+
+func (r *RouteContext) Body() io.ReadCloser {
+	return r.R.Body
+}
+
+func (r *RouteContext) SendError(error error) {
+	http.Error(r.w, error.Error(), http.StatusBadRequest)
+}
+
+func (r *RouteContext) SendString(message string) {
+	fmt.Fprint(r.w, message)
+}
+
+func (r *RouteContext) SendJSON(obj interface{}) {
+	r.R.Header.Set("Content-Type", "application/json")
+	json.NewEncoder(r.w).Encode(obj)
+}
 
 func getParams(regEx regexp.Regexp, url string) (map[string]string, bool) {
 	match := regEx.FindStringSubmatch(url)
@@ -47,16 +83,19 @@ func (router *Router) RunPreMiddleware(w http.ResponseWriter, r *http.Request) {
 	for _, middleware := range router.middlewares {
 		middleware(w, r)
 	}
-} 
+}
 
-func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request, state *map[string]interface{}) {
 	for _, route := range router.routes {
 		params, ok := getParams(*route.Pattern, r.URL.Path)
 
 		if ok && r.Method == route.Method {
-			ctx := context.WithValue(r.Context(), PARAMS, params)
-			req := r.WithContext(ctx)
-			route.Handler(w, req)
+			route.Handler(&RouteContext{
+				w:      w,
+				params: params,
+				state:  state,
+				R:      r,
+			})
 			return
 		}
 	}
