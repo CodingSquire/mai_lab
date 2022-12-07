@@ -15,7 +15,7 @@ func GetOrder(r *http.RouteContext) {
 	order, ok := orderController.GetOrderById(r.Params("id"))
 
 	if ok {
-		r.SendString(fmt.Sprintf("Got, %q", *order.Item))
+		r.SendJSON(order)
 	} else {
 		r.SendString(fmt.Sprintf("Failed to get, %q", r.Params("id")))
 	}

@@ -1,12 +1,15 @@
 package implmemory
 
-import "orders/models"
+import (
+	"orders/controllers"
+	"orders/models"
+)
 
 type OrderMemController struct {
 	cache map[string]*models.Order
 }
 
-func NewOrderMemController() *OrderMemController {
+func NewOrderMemController() controllers.OrderController {
 	return &OrderMemController{
 		cache: make(map[string]*models.Order),
 	}

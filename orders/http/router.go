@@ -59,7 +59,7 @@ func (r *RouteContext) SendString(message string) {
 }
 
 func (r *RouteContext) SendJSON(obj interface{}) {
-	r.R.Header.Set("Content-Type", "application/json")
+	r.w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(r.w).Encode(obj)
 }
 
