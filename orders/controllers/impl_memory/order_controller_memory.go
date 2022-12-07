@@ -1,24 +1,19 @@
 package implmemory
 
-import (
-	"orders/controllers"
-	"orders/models"
-)
+import "orders/models"
 
 type OrderMemController struct {
-	_memory map[string]*models.Order
+	cache map[string]*models.Order
 }
 
-const CONTROLLERKEY = "orderController"
-
-func NewOrderMemController() controllers.OrderController {
+func NewOrderMemController() *OrderMemController {
 	return &OrderMemController{
-		_memory: make(map[string]*models.Order),
+		cache: make(map[string]*models.Order),
 	}
 }
 
 func (o *OrderMemController) GetAllOrders() []models.Order {
-	orders := make([]models.Order, len(o._memory))
+	orders := make([]models.Order, len(o.cache))
 
 	for _, order := range orders {
 		orders = append(orders, order)
@@ -28,20 +23,20 @@ func (o *OrderMemController) GetAllOrders() []models.Order {
 }
 
 func (o *OrderMemController) GetOrderById(id string) (*models.Order, bool) {
-	order, ok := o._memory[id]
+	order, ok := o.cache[id]
 	return order, ok
 }
 
 func (o *OrderMemController) DeleteOrderById(id string) {
-	delete(o._memory, id)
+	delete(o.cache, id)
 }
 
 func (o *OrderMemController) PatchOrderById(id string, order *models.Order) {
 	order.Id = &id
-	o._memory[id] = order
+	o.cache[id] = order
 }
 
 func (o *OrderMemController) PostOrder(id string, order *models.Order) {
 	order.Id = &id
-	o._memory[id] = order
+	o.cache[id] = order
 }
