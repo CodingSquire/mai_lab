@@ -3,48 +3,46 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"orders/controllers"
 	implmemory "orders/controllers/impl_memory"
-	httpApp "orders/http"
+	"orders/http"
 	"orders/models"
 )
 
-func GetOrder(w http.ResponseWriter, r *http.Request) {
-	params := r.Context().Value(httpApp.PARAMS).(map[string]string)
-	orderController := r.Context().Value(implmemory.CONTROLLERKEY).(controllers.OrderController)
+func GetOrder(r *http.RouteContext) {
+	var orderController implmemory.OrderMemController
+	r.State(&orderController)
 
-	order, ok := orderController.GetOrderById(params["id"])
+	order, ok := orderController.GetOrderById(r.Params("id"))
 
 	if ok {
-		fmt.Fprintf(w, "Got, %q", *order.Item)
+		r.SendString(fmt.Sprintf("Got, %q", *order.Item))
 	} else {
-		fmt.Fprintf(w, "Failed to get, %q", params["id"])
+		r.SendString(fmt.Sprintf("Failed to get, %q", r.Params("id")))
 	}
 }
 
-func DeleteOrder(w http.ResponseWriter, r *http.Request) {
-	params := r.Context().Value(httpApp.PARAMS).(map[string]string)
-	orderController := r.Context().Value(implmemory.CONTROLLERKEY).(controllers.OrderController)
+func DeleteOrder(r *http.RouteContext) {
+	var orderController implmemory.OrderMemController
+	r.State(&orderController)
 
-	orderController.DeleteOrderById(params["id"])
+	orderController.DeleteOrderById(r.Params("id"))
 
-	fmt.Fprintf(w, "Deleted, %q", params["id"])
+	r.SendString(fmt.Sprintf("Deleted, %q", r.Params("id")))
 }
 
-func PostOrder(w http.ResponseWriter, r *http.Request) {
-	params := r.Context().Value(httpApp.PARAMS).(map[string]string)
-	orderController := r.Context().Value(implmemory.CONTROLLERKEY).(controllers.OrderController)
+func PostOrder(r *http.RouteContext) {
+	var orderController implmemory.OrderMemController
+	r.State(&orderController)
 
     var order models.OrderPost
-    err := json.NewDecoder(r.Body).Decode(&order)
+    err := json.NewDecoder(r.Body()).Decode(&order)
 
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+		r.SendError(err)
 		return
 	}
 
-	fmt.Printf("Parsed: %+v\n", order)
-	orderController.PostOrder(params["id"], order.MakeOrder())
-	fmt.Fprintf(w, "Post, %q", params["id"])
+	//fmt.Printf("Parsed: %+v\n", order)
+	orderController.PostOrder(r.Params("id"), order.MakeOrder())
+	r.SendString(fmt.Sprintf("Post, %q", r.Params("id")))
 }

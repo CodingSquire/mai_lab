@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 	"orders/api"
+	"orders/controllers/impl_memory"
 	"orders/dotenv"
 	"orders/http"
-	"orders/controllers/impl_memory"
 )
 
 func main() {
@@ -13,11 +13,13 @@ func main() {
 
 	app := http.NewApp()
 
-	app.Manage(implmemory.CONTROLLERKEY, implmemory.NewOrderMemController())
+	app.Manage(implmemory.NewOrderMemController())
 
-	app.Get("/order/:id", api.GetOrder)
-	app.Delete("/order/:id", api.DeleteOrder)
-	app.Post("/order/:id", api.PostOrder)
+	order := app.Group("/order")
+
+	order.Get("/:id", api.GetOrder)
+	order.Delete("/:id", api.DeleteOrder)
+	order.Post("/:id", api.PostOrder)
 
 	// app.Use(api.LoggerMiddleware)
 
