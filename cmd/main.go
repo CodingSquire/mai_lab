@@ -1,37 +1,42 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"mai_lab/pkg/service"
+	"github.com/julienschmidt/httprouter"
+	"log"
+	"mai_lab/internal/user"
+	"net"
+	"net/http"
+	"time"
 )
 
 func main() {
-	fmt.Println("Hello world")
 
-	u := service.User{Login: "log", Email: "em", Mobile: "8-800", Name: "name", Password: "pass"}
-	u2 := service.User{Login: "Sixzer", Email: "6zer", Mobile: "8-999-999-99-99", Name: "Alex", Password: "qwe"}
+	log.Println("create router")
+	router := httprouter.New()
 
-	existingUser := service.User{Login: "log", Mobile: "8-800", Name: "name", Password: "pass"}
+	log.Println("register user handler")
+	handler := user.NewHandler()
+	handler.Register(router)
 
-	js, err := json.Marshal(u)
+	start(router)
+
+}
+
+func start(router *httprouter.Router) {
+	log.Println("start application")
+
+	listener, err := net.Listen("tcp", "127.0.0.1:1234")
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		service.CreateUserFromJSON(js)
+		panic(err)
 	}
 
-	service.CreateUser(u2)
-
-	service.CreateUser(existingUser)
-
-	service.PrintUsers()
-
-	u1, err2 := service.GetUser("log")
-	if err2 == nil {
-		fmt.Println(u1)
-	} else {
-		fmt.Println(err2)
+	server := &http.Server{
+		Handler:      router,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
+
+	log.Println("server is listening port 1234")
+	log.Fatalln(server.Serve(listener))
 
 }
