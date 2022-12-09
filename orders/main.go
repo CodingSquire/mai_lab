@@ -17,9 +17,13 @@ func main() {
 
 	order := app.Group("/order")
 
+	order.Use(api.LoggerMiddleware)
+
 	order.Get("/:id", api.GetOrder)
+	order.Get("", api.GetAllOrders)
 	order.Delete("/:id", api.DeleteOrder)
-	order.Post("/:id", api.PostOrder)
+	order.Post("", api.PostOrder)
+	order.Patch("/:id", api.UpdateOrder)
 
 	// app.Use(api.LoggerMiddleware)
 

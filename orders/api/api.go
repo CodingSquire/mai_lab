@@ -1,11 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	implmemory "orders/controllers/impl_memory"
+	"orders/dtos"
 	"orders/http"
-	"orders/models"
 )
 
 func GetOrder(r *http.RouteContext) {
@@ -21,6 +20,32 @@ func GetOrder(r *http.RouteContext) {
 	}
 }
 
+func GetAllOrders(r *http.RouteContext) {
+	var orderController implmemory.OrderMemController
+	r.State(&orderController)
+
+	orders := orderController.GetAllOrders()
+
+	r.SendJSON(orders)
+}
+
+func UpdateOrder(r *http.RouteContext) {
+	var orderController implmemory.OrderMemController
+	r.State(&orderController)
+
+	var order dtos.OrderPost
+	err := r.DecodeJSON(&order)
+
+	if err != nil {
+		r.SendError(err)
+		return
+	}
+
+	orderController.PatchOrderById(r.Params("id"), order.MakeOrder())
+
+	r.SendString(fmt.Sprint("Updated"))
+}
+
 func DeleteOrder(r *http.RouteContext) {
 	var orderController implmemory.OrderMemController
 	r.State(&orderController)
@@ -34,8 +59,8 @@ func PostOrder(r *http.RouteContext) {
 	var orderController implmemory.OrderMemController
 	r.State(&orderController)
 
-    var order models.OrderPost
-    err := json.NewDecoder(r.Body()).Decode(&order)
+	var order dtos.OrderPost
+	err := r.DecodeJSON(&order)
 
 	if err != nil {
 		r.SendError(err)
@@ -43,6 +68,6 @@ func PostOrder(r *http.RouteContext) {
 	}
 
 	//fmt.Printf("Parsed: %+v\n", order)
-	orderController.PostOrder(r.Params("id"), order.MakeOrder())
-	r.SendString(fmt.Sprintf("Post, %q", r.Params("id")))
+	orderController.PostOrder(order.MakeOrder())
+	r.SendString(fmt.Sprint("Posted"))
 }

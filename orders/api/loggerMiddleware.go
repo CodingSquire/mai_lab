@@ -3,16 +3,20 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
-	"net/http"
+	"orders/http"
+	"time"
 )
 
-func LoggerMiddleware(_ http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Path:\t%s\n", r.URL.Path)
-	fmt.Printf("Method:\t%s\n", r.Method)
+func LoggerMiddleware(c *http.RouteContext) {
+	body, _ := ioutil.ReadAll(c.Body())
+	bodyString := string(body)
 
-	if r.Method != http.MethodGet {
-		body, _ := ioutil.ReadAll(r.Body)
-		bodyString := string(body)
-		fmt.Printf("Body:\t%s\n", bodyString)
-	}
+	fmt.Printf("Path:\t%s\n", c.R.URL.Path)
+	fmt.Printf("Method:\t%s\n", c.R.Method)
+	fmt.Printf("Body:\t%s\n", bodyString)
+
+	start := time.Now()
+	c.Next()
+
+	fmt.Printf("Time spent: %d\n", time.Since(start))
 }

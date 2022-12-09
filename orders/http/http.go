@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"orders/table"
 	"reflect"
-	"regexp"
-	"strings"
 )
 
 type HttpApp struct {
@@ -27,7 +25,6 @@ func NewApp() *HttpApp {
 }
 
 func (h *HttpApp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.Router.RunPreMiddleware(w, r)
 	h.Router.ServeHTTP(w, r, &h.State)
 }
 
@@ -51,62 +48,30 @@ func (a *HttpApp) MakeInfoTable(port string) string {
 	return table.String()
 }
 
-func parsePattern(pattern string) *regexp.Regexp {
-	splited := strings.Split(pattern, "/")
-	buffer := new(strings.Builder)
-
-	for _, canBePattern := range splited {
-		if canBePattern != "" {
-			buffer.WriteString(`\/`)
-			if strings.HasPrefix(canBePattern, ":") {
-				buffer.WriteString(`(?P<`)
-				buffer.WriteString(canBePattern[1:])
-				buffer.WriteString(`>.+)`)
-			} else {
-				buffer.WriteString(canBePattern)
-			}
-		}
-	}
-
-	return regexp.MustCompile(buffer.String())
-}
-
 func (a *HttpApp) Manage(state interface{}) {
 	key := reflect.TypeOf(state).String()
 	a.State[key] = state
 }
 
-func (a *HttpApp) SetHandler(method string, strPattern string, handler RouteHandler) {
-	pattern := parsePattern(strPattern)
-
-	newroutes := append(a.Router.routes, Route{
-		OrigPath: strPattern,
-		Method:   method,
-		Pattern:  pattern,
-		Handler:  handler,
-	})
-
-	a.Router.routes = newroutes
-}
-
 func (a *HttpApp) Get(pattern string, handler RouteHandler) {
-	a.SetHandler(http.MethodGet, pattern, handler)
+	a.Router.SetHandler(http.MethodGet, pattern, handler)
 }
 func (a *HttpApp) Post(pattern string, handler RouteHandler) {
-	a.SetHandler(http.MethodPost, pattern, handler)
+	a.Router.SetHandler(http.MethodPost, pattern, handler)
 }
 func (a *HttpApp) Delete(pattern string, handler RouteHandler) {
-	a.SetHandler(http.MethodDelete, pattern, handler)
+	a.Router.SetHandler(http.MethodDelete, pattern, handler)
 }
 func (a *HttpApp) Patch(pattern string, handler RouteHandler) {
-	a.SetHandler(http.MethodPatch, pattern, handler)
+	a.Router.SetHandler(http.MethodPatch, pattern, handler)
 }
 func (a *HttpApp) Put(pattern string, handler RouteHandler) {
-	a.SetHandler(http.MethodPut, pattern, handler)
+	a.Router.SetHandler(http.MethodPut, pattern, handler)
 }
-
-func (a *HttpApp) Use(handler MiddlwareRouterHandler) {
-	a.Router.middlewares = append(a.Router.middlewares, handler)
+func (a *HttpApp) Use(handlers ...RouteHandler) {
+	for _, handler := range handlers {
+		a.Router.SetHandler("*", "/",  handler)
+	}
 }
 
 func (a *HttpApp) Group(path string) *HttpGroup {
@@ -123,18 +88,23 @@ func (g *HttpGroup) Group(path string) *HttpGroup {
 	}
 }
 
+func (g *HttpGroup) Use(handlers ...RouteHandler) {
+	for _, handler := range handlers {
+		g.app.Router.SetHandler("*", g.path,  handler)
+	}
+}
 func (g *HttpGroup) Get(pattern string, handler RouteHandler) {
-	g.app.SetHandler(http.MethodGet, g.path + pattern, handler)
+	g.app.Get(g.path + pattern, handler)
 }
 func (g *HttpGroup) Post(pattern string, handler RouteHandler) {
-	g.app.SetHandler(http.MethodPost, g.path + pattern, handler)
+	g.app.Post(g.path + pattern, handler)
 }
 func (g *HttpGroup) Delete(pattern string, handler RouteHandler) {
-	g.app.SetHandler(http.MethodDelete, g.path + pattern, handler)
+	g.app.Delete(g.path + pattern, handler)
 }
 func (g *HttpGroup) Patch(pattern string, handler RouteHandler) {
-	g.app.SetHandler(http.MethodPatch, g.path + pattern, handler)
+	g.app.Patch(g.path + pattern, handler)
 }
 func (g *HttpGroup) Put(pattern string, handler RouteHandler) {
-	g.app.SetHandler(http.MethodPut, g.path + pattern, handler)
+	g.app.Put(g.path + pattern, handler)
 }

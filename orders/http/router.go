@@ -7,19 +7,21 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 type RouteContext struct {
-	w      http.ResponseWriter
+	W      http.ResponseWriter
+	R      *http.Request
+	Router *Router
 	params map[string]string
 	state  *map[string]interface{}
-	R      *http.Request
+	index  int
 }
 
 type ResponseWriter http.ResponseWriter
 
 type RouteHandler func(r *RouteContext)
-type MiddlwareRouterHandler func(w ResponseWriter, r *http.Request)
 
 type Route struct {
 	Method   string
@@ -29,8 +31,15 @@ type Route struct {
 }
 
 type Router struct {
-	middlewares []MiddlwareRouterHandler
-	routes      []Route
+	routes []*Route
+}
+
+// _______utils_______
+
+func (r *RouteContext) Next() error {
+	// TODO: can add may handlers on route
+	// and we can walk them here
+	return r.Router.next(r)
 }
 
 func (r *RouteContext) Params(key string) string {
@@ -50,28 +59,33 @@ func (r *RouteContext) Body() io.ReadCloser {
 	return r.R.Body
 }
 
+func (r *RouteContext) DecodeJSON(obj any) error {
+	return json.NewDecoder(r.Body()).Decode(obj)
+}
+
 func (r *RouteContext) SendError(error error) {
-	http.Error(r.w, error.Error(), http.StatusBadRequest)
+	http.Error(r.W, error.Error(), http.StatusBadRequest)
 }
 
 func (r *RouteContext) SendString(message string) {
-	fmt.Fprint(r.w, message)
+	fmt.Fprint(r.W, message)
 }
 
 func (r *RouteContext) SendJSON(obj interface{}) {
-	r.w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(r.w).Encode(obj)
+	r.W.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(r.W).Encode(obj)
 }
 
-func getParams(regEx regexp.Regexp, url string) (map[string]string, bool) {
-	match := regEx.FindStringSubmatch(url)
+// parsing params by regex
+func (r *Route) getParams(url string) (map[string]string, bool) {
+	match := r.Pattern.FindStringSubmatch(url)
 	paramsMap := make(map[string]string)
 
 	if match == nil {
 		return paramsMap, false
 	}
 
-	for i, name := range regEx.SubexpNames() {
+	for i, name := range r.Pattern.SubexpNames() {
 		if i > 0 && i <= len(match) {
 			paramsMap[name] = match[i]
 		}
@@ -79,25 +93,92 @@ func getParams(regEx regexp.Regexp, url string) (map[string]string, bool) {
 	return paramsMap, true
 }
 
-func (router *Router) RunPreMiddleware(w http.ResponseWriter, r *http.Request) {
-	for _, middleware := range router.middlewares {
-		middleware(w, r)
+func (r *Route) methodIsValidAgainst(method string) bool {
+	return r.Method == "*" || method == r.Method
+}
+
+// main http handler
+func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request, state *map[string]interface{}) {
+	ctx := &RouteContext{
+		W:      w,
+		R:      r,
+		Router: router,
+		state:  state,
+		index: -1,
+	}
+	err := router.next(ctx)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
-func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request, state *map[string]interface{}) {
-	for _, route := range router.routes {
-		params, ok := getParams(*route.Pattern, r.URL.Path)
+func (router *Router) next(ctx *RouteContext) (err error) {
+	for ctx.index + 1 < len(router.routes) {
+		// getting new route
+		ctx.index++
+		route := router.routes[ctx.index]
 
-		if ok && r.Method == route.Method {
-			route.Handler(&RouteContext{
-				w:      w,
-				params: params,
-				state:  state,
-				R:      r,
-			})
+		// parsing params
+		params, ok := route.getParams(ctx.R.URL.Path)
+
+		if ok && route.methodIsValidAgainst(ctx.R.Method) {
+			// setting parsed params
+			ctx.params = params
+			route.Handler(ctx)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusBadRequest)
+	err = fmt.Errorf("No route found")
+	// XXX: shoud we write error to ctx.W?
+	return
+}
+
+func parsePattern(pattern string) *regexp.Regexp {
+	splited := strings.Split(pattern, "/")
+	buffer := new(strings.Builder)
+
+	for _, canBePattern := range splited {
+		if canBePattern != "" {
+			buffer.WriteString(`\/`)
+			if strings.HasPrefix(canBePattern, ":") {
+				buffer.WriteString(`(?P<`)
+				buffer.WriteString(canBePattern[1:])
+				buffer.WriteString(`>.+)`)
+			} else {
+				buffer.WriteString(canBePattern)
+			}
+		}
+	}
+
+	return regexp.MustCompile(buffer.String())
+}
+
+func (r *Router) SetHandler(method string, pathRaw string, handler RouteHandler) {
+	// Cannot have an empty path
+	if pathRaw == "" {
+		pathRaw = "/"
+	}
+	// Path always start with a '/'
+	if pathRaw[0] != '/' {
+		pathRaw = "/" + pathRaw
+	}
+
+	// fallback on glob
+	if method == "" {
+		method = "*"
+	}
+
+	// TODO: handle globs in routes && case-insensetive
+
+	pattern := parsePattern(pathRaw)
+
+	newroutes := append(r.routes, &Route{
+		OrigPath: pathRaw,
+		Method:   method,
+		Pattern:  pattern,
+		Handler:  handler,
+	})
+
+	r.routes = newroutes
 }
