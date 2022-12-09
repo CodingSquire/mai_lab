@@ -10,11 +10,6 @@ import (
 )
 
 func TestInMemoryUserRepository(t *testing.T) {
-	t.Run("Creating and getting users", creatingAndGettingUsers)
-	t.Run("Deleting users", deletingUsers)
-}
-
-func creatingAndGettingUsers(t *testing.T) {
 	repo := repositories.NewInMemoryUserRepository()
 
 	user := &models.User{
@@ -29,7 +24,6 @@ func creatingAndGettingUsers(t *testing.T) {
 		t.Errorf("Error creating user: %s", err)
 	}
 
-	// uuid.UUID must be set after creating user
 	if user.ID == uuid.Nil {
 		t.Errorf("User ID must be set after creating user")
 	}
@@ -66,9 +60,14 @@ func creatingAndGettingUsers(t *testing.T) {
 	if len(allUsers) != len(users)+1 {
 		t.Errorf("Expected %d users, got %d", len(users)+1, len(allUsers))
 	}
-}
 
-func deletingUsers(t *testing.T) {
-	//repo := repositories.NewInMemoryUserRepository()
+	err = repo.Delete(user.ID)
+	if err != nil {
+		t.Errorf("Error deleting user: %s", err)
+	}
 
+	_, err = repo.Get(user.ID)
+	if err == nil {
+		t.Errorf("Expected error getting deleted user")
+	}
 }
