@@ -40,19 +40,23 @@ func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 	for _, route := range r.routingTable {
 		matches := route.regex.FindStringSubmatch(req.URL.Path)
 		if route.method == req.Method && len(matches) > 0 {
-			params := make(map[string]string)
-			for i, name := range route.regex.SubexpNames() {
-				if i != 0 && name != "" {
-					params[name] = matches[i]
-				}
-			}
+			params := getParamsFromRoute(route, matches)
 			ctx := context.WithValue(req.Context(), ctxkeys.ContextKeyParams, params)
-			req = req.WithContext(ctx)
-			route.handler(w, req)
+			route.handler(w, req.WithContext(ctx))
 			return
 		}
 	}
 	w.WriteHeader(http.StatusBadRequest)
+}
+
+func getParamsFromRoute(route route, matches []string) map[string]string {
+	params := make(map[string]string)
+	for i, name := range route.regex.SubexpNames() {
+		if i != 0 && name != "" {
+			params[name] = matches[i]
+		}
+	}
+	return params
 }
 
 func (r *Router) Run(port string) {
