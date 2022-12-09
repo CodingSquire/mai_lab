@@ -92,8 +92,10 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-
+	userResponse := dtos.UserResponseDto{}
+	userResponse.FromUser(user)
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(userResponse)
 }
 
 func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +131,10 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userResponse := dtos.UserResponseDto{}
+	userResponse.FromUser(user)
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(userResponse)
 }
 
 func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
