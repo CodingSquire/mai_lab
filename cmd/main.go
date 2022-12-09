@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"log"
+	"mai_lab/internal/config"
 	"mai_lab/internal/user"
 	"net"
 	"net/http"
@@ -14,20 +16,31 @@ func main() {
 	log.Println("create router")
 	router := httprouter.New()
 
+	cfg := config.GetConfig()
+
 	log.Println("register user handler")
 	handler := user.NewHandler()
 	handler.Register(router)
 
-	start(router)
+	start(router, cfg)
 
 }
 
-func start(router *httprouter.Router) {
+func start(router *httprouter.Router, cfg *config.Config) {
 	log.Println("start application")
 
-	listener, err := net.Listen("tcp", "127.0.0.1:1234")
-	if err != nil {
-		panic(err)
+	var listener net.Listener
+	var listenErr error
+
+	if cfg.Listen.Type == "sock" {
+
+	} else {
+		log.Println("listen tcp")
+		listener, listenErr = net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Listen.BindIP, cfg.Listen.Port))
+	}
+
+	if listenErr != nil {
+		log.Fatalln(listenErr)
 	}
 
 	server := &http.Server{
@@ -36,7 +49,7 @@ func start(router *httprouter.Router) {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("server is listening port 1234")
+	log.Printf("server is listening port %s:%s", cfg.Listen.BindIP, cfg.Listen.Port)
 	log.Fatalln(server.Serve(listener))
 
 }

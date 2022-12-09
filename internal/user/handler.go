@@ -12,6 +12,7 @@ const (
 )
 
 type handler struct {
+	// TODO logger
 }
 
 func NewHandler() handlers.Handler {
