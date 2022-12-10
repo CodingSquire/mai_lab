@@ -1,3 +1,4 @@
+// Package middlewares provides middlewares for the application.
 package middlewares
 
 import (
@@ -8,6 +9,7 @@ import (
 	"time"
 )
 
+// Message is a log message.
 type Message struct {
 	StatusCode int
 	Method     string
@@ -15,6 +17,7 @@ type Message struct {
 	Time       time.Duration
 }
 
+// LoggingMiddleware is a middleware that logs requests.
 func LoggingMiddleware() Adapter {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +47,7 @@ func LoggingMiddleware() Adapter {
 	}
 }
 
+// responseWriter wraps an http.ResponseWriter to capture the status code.
 type responseWriter struct {
 	http.ResponseWriter
 	status      int
@@ -54,10 +58,12 @@ func wrapResponseWriter(w http.ResponseWriter) *responseWriter {
 	return &responseWriter{ResponseWriter: w}
 }
 
+// Status returns the status code of the response.
 func (rw *responseWriter) Status() int {
 	return rw.status
 }
 
+// WriteHeader writes the status code to the response.
 func (rw *responseWriter) WriteHeader(code int) {
 	if rw.wroteHeader {
 		return

@@ -10,11 +10,13 @@ var (
 	beginsWithUnderscoreOrAlpha                 = regexp.MustCompile(`^[a-zA-Z_].*$`)
 )
 
+// UserRequestDtoValidator is a validator for UserRequestDto.
 type UserRequestDtoValidator struct {
 	UserRequestDto UserRequestDto
 	Errors         map[string][]string
 }
 
+// NewUserValidator creates a new UserRequestDtoValidator.
 func NewUserValidator(u UserRequestDto) *UserRequestDtoValidator {
 	return &UserRequestDtoValidator{
 		UserRequestDto: u,
@@ -22,6 +24,7 @@ func NewUserValidator(u UserRequestDto) *UserRequestDtoValidator {
 	}
 }
 
+// IsValid returns true if the user request dto is valid.
 func (uv *UserRequestDtoValidator) IsValid() bool {
 	uv.validateUsername()
 	uv.validateFirstName()

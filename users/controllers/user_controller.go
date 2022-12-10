@@ -1,3 +1,4 @@
+// Package controllers contains all the controllers for the application
 package controllers
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// UserController is an interface for user controllers.
 type UserController interface {
 	GetUserById(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
@@ -22,6 +24,7 @@ type userController struct {
 	service services.UserService
 }
 
+// NewUserController returns a new instance of UserController.
 func NewUserController(service services.UserService) UserController {
 	return &userController{
 		service: service,
@@ -32,6 +35,10 @@ func prepareResponse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
+// GetUserById returns a user by id provided in context.
+// Returns a 404 if the user does not exist.
+// Returns a 400 if the id is not a valid uuid.
+// Returns a 200 with the user if the user exists.
 func (c *userController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
@@ -53,6 +60,8 @@ func (c *userController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userResponse)
 }
 
+// GetAllUsers returns all users.
+// Returns a 200 with the users.
 func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	users := c.service.GetAllUsers()
@@ -68,6 +77,10 @@ func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(usersResponse)
 }
 
+// CreateUser creates a new user.
+// Returns a 400 if the request body is invalid.
+// Returns a 400 if the user already exists.
+// Returns a 201 with the created user.
 func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	var userRequest dtos.UserRequestDto
@@ -98,6 +111,11 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userResponse)
 }
 
+// UpdateUser updates a user.
+// Returns a 400 if the request body is invalid.
+// Returns a 404 if the user does not exist.
+// Returns a 400 if the id is not a valid uuid.
+// Returns a 200 with the updated user.
 func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
@@ -137,6 +155,10 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userResponse)
 }
 
+// DeleteUser deletes a user.
+// Returns a 404 if the user does not exist.
+// Returns a 400 if the id is not a valid uuid.
+// Returns a 200 if the user was deleted.
 func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]

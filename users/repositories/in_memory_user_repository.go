@@ -1,3 +1,4 @@
+// Package repositories implements the repository pattern for the application.
 package repositories
 
 import (
@@ -15,12 +16,14 @@ type inMemoryUserRepository struct {
 	mu    sync.RWMutex
 }
 
+// NewInMemoryUserRepository returns a new instance of UserRepository.
 func NewInMemoryUserRepository() UserRepository {
 	return &inMemoryUserRepository{
 		users: make(map[uuid.UUID]*models.User),
 	}
 }
 
+// Get returns a user by id. Returns an error if the user does not exist.
 func (r *inMemoryUserRepository) Get(id uuid.UUID) (*models.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -33,6 +36,7 @@ func (r *inMemoryUserRepository) Get(id uuid.UUID) (*models.User, error) {
 	return user, nil
 }
 
+// GetAll returns all users.
 func (r *inMemoryUserRepository) GetAll() []models.User {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -45,6 +49,7 @@ func (r *inMemoryUserRepository) GetAll() []models.User {
 	return users
 }
 
+// Create creates a new user. Returns an error if the user already exists.
 func (r *inMemoryUserRepository) Create(user *models.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -60,6 +65,7 @@ func (r *inMemoryUserRepository) Create(user *models.User) error {
 	return nil
 }
 
+// Update updates an existing user. Returns an error if the user does not exist.
 func (r *inMemoryUserRepository) Update(user *models.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -74,6 +80,7 @@ func (r *inMemoryUserRepository) Update(user *models.User) error {
 	return nil
 }
 
+// Delete deletes an existing user. Returns an error if the user does not exist.
 func (r *inMemoryUserRepository) Delete(id uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
