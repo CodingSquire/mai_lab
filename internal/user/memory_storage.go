@@ -44,13 +44,13 @@ func (u usersMap) Update(ctx context.Context, user User) error {
 		u[user.ID] = user
 		return nil
 	}
-	return fmt.Errorf("failed to update, User does not exist")
+	return fmt.Errorf("failed to update, user does not exist")
 }
 
-func (u usersMap) Delete(ctx context.Context, user User) error {
-	if u.checkUserExist(user.ID) {
-		delete(u, user.ID)
+func (u usersMap) Delete(ctx context.Context, id uuid.UUID) error {
+	if u.checkUserExist(id) {
+		delete(u, id)
 		return nil
 	}
-	return fmt.Errorf("the User does not exist")
+	return fmt.Errorf("failed to delete, user does not exist")
 }
