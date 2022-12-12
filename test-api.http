@@ -1,15 +1,20 @@
-GET http://localhost:10000/users
+GET http://localhost:8080/users
 Content-Type: application/json
 
 {}
 
-###
+###  Create user
 
 
-POST http://localhost:10000/users
+POST http://localhost:8080/users
 Content-Type: application/json
 
-{}
+{
+  "name": "kolya",
+  "email": "kolya@gmail.com",
+  "mobile": "8318",
+  "password": "123"
+}
 
 > {%
 client.test("Request executed successfully", function() {
@@ -19,7 +24,7 @@ client.test("Request executed successfully", function() {
 
 ###
 
-PUT http://localhost:10000/users/1
+PUT http://localhost:8080/users/1
 Content-Type: application/json
 
 {}
@@ -32,10 +37,13 @@ client.test("Request executed successfully", function() {
 
 ###
 
-PATCH http://localhost:10000/users/1
+PATCH http://localhost:8080/users/f9388c9c-42dd-457d-8cf9-af7d777f33b8
 Content-Type: application/json
 
-{}
+{
+  "old_password": "123",
+  "mobile": "8-999-999-99-99"
+}
 
 > {%
 client.test("Request executed successfully", function() {
@@ -44,7 +52,7 @@ client.test("Request executed successfully", function() {
 %}
 ###
 
-DELETE http://localhost:10000/users/1
+DELETE http://localhost:8080/users/4d4929e9-8e25-4216-88e8-ec1085605ff2
 Content-Type: application/json
 
 {}

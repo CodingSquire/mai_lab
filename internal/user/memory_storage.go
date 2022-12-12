@@ -39,6 +39,14 @@ func (u usersMap) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	}
 }
 
+func (u usersMap) GetAll(ctx context.Context) ([]User, error) {
+	all := make([]User, 0, len(u))
+	for _, value := range u {
+		all = append(all, value)
+	}
+	return all, nil
+}
+
 func (u usersMap) Update(ctx context.Context, user User) error {
 	if u.checkUserExist(user.ID) {
 		u[user.ID] = user

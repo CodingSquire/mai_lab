@@ -10,11 +10,4 @@ type User struct {
 	PasswordHash string    `json:"-"`
 }
 
-type CreateUserDTO struct {
-	Name     string `json:"name"`
-	Email    string `json:"email" ,omitempty`
-	Mobile   string `json:"mobile"`
-	Password string `json:"password"`
-}
-
 type key uuid.UUID

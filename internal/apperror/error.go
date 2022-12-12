@@ -1,9 +1,12 @@
 package apperror
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 var (
-	ErrorNotFound = NewAppError(nil, "not found", "", "us-0")
+	ErrorNotFound = NewAppError("not found", "", "us-0")
 )
 
 type AppError struct {
@@ -30,16 +33,20 @@ func (e *AppError) Marshal() []byte {
 
 }
 
-func NewAppError(err error, message, developerMessage, code string) *AppError {
+func NewAppError(message, developerMessage, code string) *AppError {
 
 	return &AppError{
-		Err:              err,
+		Err:              fmt.Errorf(message),
+		Code:             code,
 		Message:          message,
 		DeveloperMessage: developerMessage,
-		Code:             code,
 	}
 }
 
+func BadRequestError(message string) *AppError {
+	return NewAppError(message, "NS-000002", "some thing wrong with user data")
+}
+
 func systemError(err error) *AppError {
-	return NewAppError(err, "system error", err.Error(), "US-000000")
+	return NewAppError("system error", err.Error(), "US-000000")
 }

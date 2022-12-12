@@ -23,6 +23,23 @@ func main() {
 	userHandler := user.NewHandler(userService)
 	userHandler.Register(router)
 
+	//u1 := user.CreateUserDTO{
+	//	Name:     "kolya",
+	//	Email:    "avr.nic",
+	//	Mobile:   "1593",
+	//	Password: "1332",
+	//}
+	//
+	//u2 := user.CreateUserDTO{
+	//	Name:     "kolya",
+	//	Email:    "avr.nikves@gmail",
+	//	Mobile:   "159332",
+	//	Password: "133fefewf2",
+	//}
+	//
+	//userService.CreateUser(context.Background(), u1)
+	//userService.CreateUser(context.Background(), u2)
+
 	start(router, cfg)
 
 }
