@@ -1,7 +1,6 @@
-package implmemory
+package controllers
 
 import (
-	"orders/controllers"
 	"orders/models"
 	"strconv"
 	"sync"
@@ -15,7 +14,7 @@ type OrderMemController struct {
 
 var globalIndex int
 
-func NewOrderMemController() controllers.OrderController {
+func NewOrderMemController() OrderController {
 	return &OrderMemController{
 		cache: make(map[string]*models.Order),
 		mut:   sync.Mutex{},

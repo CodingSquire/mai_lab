@@ -78,11 +78,11 @@ func (b *TableBuilder) AppendRoute(method ,path string) {
 
 func (b *TableBuilder) getTop() string {
 	var row strings.Builder
-
+	
 	row.WriteString(LEFT_PADDING)
-	row.WriteString(TABLE_TOP_LEFT)	
-	row.WriteString(strings.Repeat(TABLE_TOP, b.maxLength - 2))	
-	row.WriteString(TABLE_TOP_RIGHT)	
+	row.WriteString(TABLE_TOP_LEFT)
+	row.WriteString(strings.Repeat(TABLE_TOP, b.maxLength - 2))
+	row.WriteString(TABLE_TOP_RIGHT)
 	row.WriteString("\n")
 
 	return row.String()
@@ -90,17 +90,17 @@ func (b *TableBuilder) getTop() string {
 
 func (b *TableBuilder) getBottom() string {
 	var row strings.Builder
-
+	
 	row.WriteString(LEFT_PADDING)
-	row.WriteString(TABLE_BOTTOM_LEFT)	
-	row.WriteString(strings.Repeat(TABLE_BOTTOM, b.maxLength - 2))	
-	row.WriteString(TABLE_BOTTOM_RIGHT)	
+	row.WriteString(TABLE_BOTTOM_LEFT)
+	row.WriteString(strings.Repeat(TABLE_BOTTOM, b.maxLength - 2))
+	row.WriteString(TABLE_BOTTOM_RIGHT)
 	row.WriteString("\n")
 
 	return row.String()
 }
 
-func (b * TableBuilder) makeLine(symb string) {
+func (b * TableBuilder) getLine(symb string) string {
 	var row strings.Builder
 	
 	row.WriteString(LEFT_PADDING)
@@ -108,8 +108,12 @@ func (b * TableBuilder) makeLine(symb string) {
 	row.WriteString(strings.Repeat(symb, b.maxLength - 2))
 	row.WriteString(TABLE_RIGHT)
 	row.WriteString("\n")
-	
-	b.stringBuilder.WriteString(row.String())
+
+	return row.String()
+}
+
+func (b * TableBuilder) makeLine(symb string) {
+	b.stringBuilder.WriteString(b.getLine(symb))
 }
 
 func (b *TableBuilder) makeEmpty() {

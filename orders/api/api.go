@@ -2,16 +2,35 @@ package api
 
 import (
 	"fmt"
-	implmemory "orders/controllers/impl_memory"
+	"orders/controllers"
 	"orders/dtos"
 	"orders/http"
 )
 
-func GetOrder(r *http.RouteContext) {
-	var orderController implmemory.OrderMemController
-	r.State(&orderController)
+type OrdersApi struct {
+	OrderController controllers.OrderController
+}
 
-	order, ok := orderController.GetOrderById(r.Params("id"))
+func NewOrdersApi(orderController controllers.OrderController) *OrdersApi {	
+	return &OrdersApi{
+		OrderController: orderController,
+	}
+}
+
+func (a *OrdersApi) SetRoutes(r http.HttpRouter) {
+	order := r.Group("/order")
+
+	//order.Use(LoggerMiddleware)
+	
+	order.Get("/:id", a.GetOrder)
+	order.Get("", a.GetAllOrders)
+	order.Delete("/:id", a.DeleteOrder)
+	order.Post("", a.PostOrder)
+	order.Patch("/:id", a.UpdateOrder)
+}
+
+func (a *OrdersApi) GetOrder(r *http.RouteContext) {
+	order, ok := a.OrderController.GetOrderById(r.Params("id"))
 
 	if ok {
 		r.SendJSON(order)
@@ -20,19 +39,13 @@ func GetOrder(r *http.RouteContext) {
 	}
 }
 
-func GetAllOrders(r *http.RouteContext) {
-	var orderController implmemory.OrderMemController
-	r.State(&orderController)
-
-	orders := orderController.GetAllOrders()
+func (a *OrdersApi) GetAllOrders(r *http.RouteContext) {
+	orders := a.OrderController.GetAllOrders()
 
 	r.SendJSON(orders)
 }
 
-func UpdateOrder(r *http.RouteContext) {
-	var orderController implmemory.OrderMemController
-	r.State(&orderController)
-
+func (a *OrdersApi) UpdateOrder(r *http.RouteContext) {
 	var order dtos.OrderPost
 	err := r.DecodeJSON(&order)
 
@@ -41,24 +54,18 @@ func UpdateOrder(r *http.RouteContext) {
 		return
 	}
 
-	orderController.PatchOrderById(r.Params("id"), order.MakeOrder())
+	a.OrderController.PatchOrderById(r.Params("id"), order.MakeOrder())
 
 	r.SendString(fmt.Sprint("Updated"))
 }
 
-func DeleteOrder(r *http.RouteContext) {
-	var orderController implmemory.OrderMemController
-	r.State(&orderController)
-
-	orderController.DeleteOrderById(r.Params("id"))
+func (a *OrdersApi) DeleteOrder(r *http.RouteContext) {
+	a.OrderController.DeleteOrderById(r.Params("id"))
 
 	r.SendString(fmt.Sprintf("Deleted, %q", r.Params("id")))
 }
 
-func PostOrder(r *http.RouteContext) {
-	var orderController implmemory.OrderMemController
-	r.State(&orderController)
-
+func (a *OrdersApi) PostOrder(r *http.RouteContext) {
 	var order dtos.OrderPost
 	err := r.DecodeJSON(&order)
 
@@ -68,6 +75,6 @@ func PostOrder(r *http.RouteContext) {
 	}
 
 	//fmt.Printf("Parsed: %+v\n", order)
-	orderController.PostOrder(order.MakeOrder())
+	a.OrderController.PostOrder(order.MakeOrder())
 	r.SendString(fmt.Sprint("Posted"))
 }

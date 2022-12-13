@@ -7,6 +7,16 @@ import (
 	"reflect"
 )
 
+type HttpRouter interface {
+	Get(pattern string, handler RouteHandler)
+	Post(pattern string, handler RouteHandler)
+	Delete(pattern string, handler RouteHandler)
+	Patch(pattern string, handler RouteHandler)
+	Put(pattern string, handler RouteHandler)
+	Use(handlers ...RouteHandler)
+	Group(pattern string) HttpRouter
+}
+
 type HttpApp struct {
 	Router Router
 	State map[string]interface{}
@@ -74,14 +84,14 @@ func (a *HttpApp) Use(handlers ...RouteHandler) {
 	}
 }
 
-func (a *HttpApp) Group(path string) *HttpGroup {
+func (a *HttpApp) Group(path string) HttpRouter {
 	return &HttpGroup {
 		path: path,
 		app: a,
 	}
 }
 
-func (g *HttpGroup) Group(path string) *HttpGroup {
+func (g *HttpGroup) Group(path string) HttpRouter {
 	return &HttpGroup {
 		path: g.path + path,
 		app: g.app,
