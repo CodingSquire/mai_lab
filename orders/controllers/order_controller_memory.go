@@ -14,6 +14,7 @@ type OrderMemController struct {
 
 var globalIndex int
 
+// NewOrderMemController gets new in-memory order controller
 func NewOrderMemController() OrderController {
 	return &OrderMemController{
 		cache: make(map[string]*models.Order),
@@ -21,6 +22,7 @@ func NewOrderMemController() OrderController {
 	}
 }
 
+// GetAllOrders gets all orders as array
 func (o *OrderMemController) GetAllOrders() []models.Order {
 	o.mut.Lock()
 	defer o.mut.Unlock()
@@ -34,6 +36,8 @@ func (o *OrderMemController) GetAllOrders() []models.Order {
 	return orders
 }
 
+// GetOrderById gets order with id
+// or returns (, false) if one doesn't exists
 func (o *OrderMemController) GetOrderById(id string) (*models.Order, bool) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
@@ -42,6 +46,7 @@ func (o *OrderMemController) GetOrderById(id string) (*models.Order, bool) {
 	return order, ok
 }
 
+// DeleteOrderById deletes order with id if exists
 func (o *OrderMemController) DeleteOrderById(id string) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
@@ -49,6 +54,8 @@ func (o *OrderMemController) DeleteOrderById(id string) {
 	delete(o.cache, id)
 }
 
+// PatchOrderById sets new order body on id
+// Also update UpdatedAt field with Now()
 func (o *OrderMemController) PatchOrderById(id string, order *models.Order) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
@@ -72,6 +79,7 @@ func (o *OrderMemController) PatchOrderById(id string, order *models.Order) {
 	}
 }
 
+// PostOrder setting new order in memory
 func (o *OrderMemController) PostOrder(order *models.Order) {
 	o.mut.Lock()
 	defer o.mut.Unlock()

@@ -7,6 +7,7 @@ import (
 	"reflect"
 )
 
+// Routing base interface for some sub routing
 type HttpRouter interface {
 	Get(pattern string, handler RouteHandler)
 	Post(pattern string, handler RouteHandler)
@@ -17,11 +18,13 @@ type HttpRouter interface {
 	Group(pattern string) HttpRouter
 }
 
+// Main app structure with inner map of global-like objects
 type HttpApp struct {
 	Router Router
 	State map[string]interface{}
 }
 
+// Group for inner nesting
 type HttpGroup struct {
 	path string
 	app *HttpApp
@@ -34,15 +37,19 @@ func NewApp() *HttpApp {
 	}
 }
 
+// Entrypoint of server
 func (h *HttpApp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.Router.ServeHTTP(w, r, &h.State)
 }
 
+// Running server on some port
+// TODO: add host setting option
 func (a *HttpApp) Run(port string) error {
 	fmt.Println(a.MakeInfoTable(port))
 	return http.ListenAndServe(":"+port, a)
 }
 
+// Just printing fancy table of routes on router
 func (a *HttpApp) MakeInfoTable(port string) string {
 	var table table.TableBuilder
 
@@ -58,10 +65,13 @@ func (a *HttpApp) MakeInfoTable(port string) string {
 	return table.String()
 }
 
+// Addig global-like object with somewhat reflection
 func (a *HttpApp) Manage(state interface{}) {
 	key := reflect.TypeOf(state).String()
 	a.State[key] = state
 }
+
+// Main route methods on main app
 
 func (a *HttpApp) Get(pattern string, handler RouteHandler) {
 	a.Router.SetHandler(http.MethodGet, pattern, handler)
@@ -84,12 +94,16 @@ func (a *HttpApp) Use(handlers ...RouteHandler) {
 	}
 }
 
+
+// Gouping for subnesting
 func (a *HttpApp) Group(path string) HttpRouter {
 	return &HttpGroup {
 		path: path,
 		app: a,
 	}
 }
+
+// Same methods as fot HttpApp with route concatination
 
 func (g *HttpGroup) Group(path string) HttpRouter {
 	return &HttpGroup {
