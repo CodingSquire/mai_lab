@@ -1,4 +1,4 @@
-package user
+package model
 
 import "github.com/google/uuid"
 
@@ -9,5 +9,3 @@ type User struct {
 	Mobile       string    `json:"mobile"`
 	PasswordHash string    `json:"-"`
 }
-
-type key uuid.UUID

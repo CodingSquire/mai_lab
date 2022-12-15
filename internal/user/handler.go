@@ -8,6 +8,7 @@ import (
 	"log"
 	"mai_lab/internal/apperror"
 	"mai_lab/internal/handlers"
+	"mai_lab/internal/user/model"
 	"net/http"
 )
 
@@ -91,7 +92,7 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	log.Println("decode create user dto")
 
-	var dto CreateUserDTO
+	var dto model.CreateUserDTO
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		return apperror.BadRequestError("invalid JSON scheme")
@@ -120,7 +121,7 @@ func (h *handler) PartiallyUpdateUser(w http.ResponseWriter, r *http.Request) er
 	}
 	log.Println("decode update user dto")
 
-	var updDTO UpdateUserDTO
+	var updDTO model.UpdateUserDTO
 	defer r.Body.Close()
 
 	if err := json.NewDecoder(r.Body).Decode(&updDTO); err != nil {
