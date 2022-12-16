@@ -62,14 +62,12 @@ func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) error {
 
 	params := r.Context().Value(httprouter.ParamsKey).(httprouter.Params)
 	userUUID := params.ByName("uuid")
-	userID, err := uuid.Parse(userUUID)
+	//userID, err := uuid.Parse(userUUID)
 
 	log.Println(userUUID)
-	log.Println(userID)
-	if err != nil {
-		return apperror.BadRequestError("123bad request")
-	}
-	user, err := h.service.GetUserByID(r.Context(), userID)
+	log.Println(userUUID)
+
+	user, err := h.service.GetUserByID(r.Context(), userUUID)
 	if err != nil {
 		return err
 	}

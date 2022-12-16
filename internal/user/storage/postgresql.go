@@ -58,7 +58,7 @@ func (s *storagePG) Create(ctx context.Context, user model.User) error {
 
 func (s *storagePG) GetUser(ctx context.Context, id string) (model.User, error) {
 	q := `
-		SELECT  id, name, email, mobile FROM public.author WHERE id = $1
+		SELECT  id, name, email, mobile FROM public.users WHERE id = $1
 	`
 	log.Printf(fmt.Sprintf("SQL Query: %s", formatQuery(q)))
 
@@ -73,7 +73,7 @@ func (s *storagePG) GetUser(ctx context.Context, id string) (model.User, error) 
 }
 func (s *storagePG) GetAll(ctx context.Context) ([]model.User, error) {
 	q := `
-		SELECT id, name, email, mobile FROM public.author;
+		SELECT id, name, email, mobile FROM public.users;
 	`
 	log.Printf(fmt.Sprintf("SQL Query: %s", formatQuery(q)))
 

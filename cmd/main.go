@@ -35,9 +35,6 @@ func main() {
 	userHandler := user.NewHandler(userService)
 	userHandler.Register(router)
 
-	//	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently))
-	//	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
-
 	start(router, cfg)
 
 }
