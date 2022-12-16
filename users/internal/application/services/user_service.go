@@ -2,8 +2,8 @@
 package services
 
 import (
-	"users/models"
-	"users/repositories"
+	"users/internal/contracts"
+	"users/internal/domain/models"
 
 	"github.com/google/uuid"
 )
@@ -18,11 +18,11 @@ type UserService interface {
 }
 
 type userService struct {
-	repo repositories.UserRepository
+	repo contracts.UserRepository
 }
 
 // NewUserService returns a new instance of UserService.
-func NewUserService(repo repositories.UserRepository) UserService {
+func NewUserService(repo contracts.UserRepository) UserService {
 	return &userService{
 		repo: repo,
 	}

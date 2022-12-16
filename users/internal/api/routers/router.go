@@ -5,9 +5,9 @@ import (
 	"context"
 	"net/http"
 	"regexp"
-	"users/controllers"
-	"users/ctxkeys"
-	m "users/middlewares"
+	"users/internal/api/common"
+	"users/internal/api/controllers"
+	"users/internal/api/middlewares"
 )
 
 // route is a single route in the routing table.
@@ -50,7 +50,7 @@ func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 		matches := route.regex.FindStringSubmatch(req.URL.Path)
 		if route.method == req.Method && len(matches) > 0 {
 			params := getParamsFromRoute(route, matches)
-			ctx := context.WithValue(req.Context(), ctxkeys.ContextKeyParams, params)
+			ctx := context.WithValue(req.Context(), common.ContextKeyParams, params)
 			route.handler(w, req.WithContext(ctx))
 			return
 		}
@@ -72,6 +72,6 @@ func getParamsFromRoute(route route, matches []string) map[string]string {
 // Run starts the router.
 func (r *Router) Run(port string) {
 	r.setupRoutes()
-	http.Handle("/", m.Adapt(http.HandlerFunc(r.serve), m.LoggingMiddleware()))
+	http.Handle("/", middlewares.Adapt(http.HandlerFunc(r.serve), middlewares.LoggingMiddleware()))
 	http.ListenAndServe(":"+port, nil)
 }

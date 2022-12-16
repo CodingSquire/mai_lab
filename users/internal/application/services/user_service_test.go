@@ -3,9 +3,9 @@ package services_test
 import (
 	"errors"
 	"testing"
-	"users/models"
-	"users/repositories/mocks"
-	"users/services"
+	"users/internal/application/services"
+	"users/internal/contracts/mocks"
+	"users/internal/domain/models"
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"

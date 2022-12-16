@@ -3,7 +3,7 @@ package dtos_test
 import (
 	"testing"
 
-	"users/dtos"
+	"users/internal/api/common/dtos"
 )
 
 var validUsernames = []string{

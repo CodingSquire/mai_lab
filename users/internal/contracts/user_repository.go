@@ -1,8 +1,8 @@
-// Package repositories implements the repository pattern for the application.
-package repositories
+// Package contracts contains all the interfaces for the application.
+package contracts
 
 import (
-	model "users/models"
+	model "users/internal/domain/models"
 
 	"github.com/google/uuid"
 )

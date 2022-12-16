@@ -2,10 +2,10 @@ package main
 
 import (
 	"os"
-	"users/controllers"
-	"users/repositories"
-	"users/routers"
-	"users/services"
+	"users/internal/api/controllers"
+	"users/internal/api/routers"
+	"users/internal/application/services"
+	"users/internal/infrastructure/repositories"
 )
 
 func main() {

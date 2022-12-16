@@ -3,8 +3,8 @@ package repositories_test
 import (
 	"testing"
 
-	"users/models"
-	"users/repositories"
+	"users/internal/domain/models"
+	"users/internal/infrastructure/repositories"
 
 	"github.com/google/uuid"
 )

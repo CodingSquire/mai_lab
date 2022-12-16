@@ -2,7 +2,7 @@
 package dtos
 
 import (
-	"users/models"
+	"users/internal/domain/models"
 )
 
 // UserRequestDto represents a user request.

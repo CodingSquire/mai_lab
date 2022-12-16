@@ -4,9 +4,9 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"users/ctxkeys"
-	"users/dtos"
-	"users/services"
+	"users/internal/api/common"
+	"users/internal/api/common/dtos"
+	"users/internal/application/services"
 
 	"github.com/google/uuid"
 )
@@ -41,7 +41,7 @@ func prepareResponse(w http.ResponseWriter, r *http.Request) {
 // Returns a 200 with the user if the user exists.
 func (c *userController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
-	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
+	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -118,7 +118,7 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 // Returns a 200 with the updated user.
 func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
-	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
+	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -161,7 +161,7 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // Returns a 200 if the user was deleted.
 func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
-	id := r.Context().Value(ctxkeys.ContextKeyParams).(map[string]string)["id"]
+	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
 	userId, err := uuid.Parse(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

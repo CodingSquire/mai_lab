@@ -6,7 +6,7 @@ package mocks
 
 import (
 	reflect "reflect"
-	models "users/models"
+	models "users/internal/domain/models"
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"

@@ -6,7 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"users/models"
+	"users/internal/contracts"
+	"users/internal/domain/models"
 
 	"github.com/google/uuid"
 )
@@ -17,7 +18,7 @@ type inMemoryUserRepository struct {
 }
 
 // NewInMemoryUserRepository returns a new instance of UserRepository.
-func NewInMemoryUserRepository() UserRepository {
+func NewInMemoryUserRepository() contracts.UserRepository {
 	return &inMemoryUserRepository{
 		users: make(map[uuid.UUID]*models.User),
 	}
