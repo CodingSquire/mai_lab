@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package order_service;
+
+service OrderService {
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
+  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+  rpc GetAllOrders(GetAllOrdersRequest) returns (GetAllOrdersResponse);
+}
+
+message GetOrderRequest { string id = 1; }
+
+message GetOrderRequest { Order order = 1; }
+
+message CreateOrderRequest {
+  string userId = 1;
+  string item = 2;
+  string adress = 3;
+  int count = 4;
+}
+
+message CreateOrderResponse { Order order = 1; }
+
+message UpdateOrderRequest { Order order = 1; }
+
+message UpdateOrderResponse { Order order = 1; }
+
+message DeleteOrderRequest { string id = 1; }
+
+message DeleteOrderResponse { string id = 1; }
+
+message GetAllOrdersRequest {}
+
+message GetAllOrdersResponse { repeated Order orders = 1; }
+
+message Order {
+  string id = 1;
+  string userId = 2;
+  string item = 3;
+  string adress = 4;
+  int count = 5;
+  int createdAt = 6;
+  int updatedAt = 7;
+}
