@@ -8,21 +8,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// UserService is an interface for user services.
-type UserService interface {
-	GetUserById(id uuid.UUID) (*models.User, error)
-	GetAllUsers() []models.User
-	CreateUser(user *models.User) error
-	UpdateUser(user *models.User) error
-	DeleteUser(id uuid.UUID) error
-}
-
 type userService struct {
 	repo contracts.UserRepository
 }
 
 // NewUserService returns a new instance of UserService.
-func NewUserService(repo contracts.UserRepository) UserService {
+func NewUserService(repo contracts.UserRepository) contracts.UserService {
 	return &userService{
 		repo: repo,
 	}

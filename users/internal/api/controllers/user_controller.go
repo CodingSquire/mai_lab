@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"users/internal/api/common"
 	"users/internal/api/common/dtos"
-	"users/internal/application/services"
+	"users/internal/contracts"
 
 	"github.com/google/uuid"
 )
@@ -21,11 +21,11 @@ type UserController interface {
 }
 
 type userController struct {
-	service services.UserService
+	service contracts.UserService
 }
 
 // NewUserController returns a new instance of UserController.
-func NewUserController(service services.UserService) UserController {
+func NewUserController(service contracts.UserService) UserController {
 	return &userController{
 		service: service,
 	}
