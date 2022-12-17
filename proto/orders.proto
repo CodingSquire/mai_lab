@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package orders;
 
 service Orders {
@@ -46,6 +48,6 @@ message Order {
   string item = 3;
   string adress = 4;
   int64 count = 5;
-  int64 createdAt = 6;
-  int64 updatedAt = 7;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
 }
