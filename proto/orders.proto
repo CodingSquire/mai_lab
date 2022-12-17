@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package order_service;
+package orders;
 
-service OrderService {
+service Orders {
   rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
   rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
@@ -19,7 +19,7 @@ message CreateOrderRequest {
   string userId = 1;
   string item = 2;
   string adress = 3;
-  int count = 4;
+  int64 count = 4;
 }
 
 message CreateOrderResponse { Order order = 1; }
@@ -45,7 +45,7 @@ message Order {
   string userId = 2;
   string item = 3;
   string adress = 4;
-  int count = 5;
-  int createdAt = 6;
-  int updatedAt = 7;
+  int64 count = 5;
+  int64 createdAt = 6;
+  int64 updatedAt = 7;
 }
