@@ -21,7 +21,7 @@ func (o *OrderPgxController) GetAllOrdersByUserId(userId string) []models.Order 
 
 	res := make([]models.Order, 1)
 
-	rows, err := o.db.Query("SELECT * FROM orders WHERE userId = ?", userId)
+	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE userId = $1", userId)
 	if err != nil {
 		log.Fatal(err)
 		return res
@@ -52,7 +52,7 @@ func (o *OrderPgxController) DeleteOrderById(id string) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	_, err = o.db.Exec("DELETE FROM orders WHERE id = ?", id)
+	_, err = o.db.Exec("DELETE FROM orders WHERE id = $1", id)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -68,7 +68,7 @@ func (o *OrderPgxController) GetAllOrders() []models.Order {
 
 	res := make([]models.Order, 1)
 
-	rows, err := o.db.Query("SELECT * FROM orders")
+	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders")
 	if err != nil {
 		log.Fatal(err)
 		return res
@@ -100,7 +100,7 @@ func (o *OrderPgxController) GetOrderById(id string) (*models.Order, bool) {
 	defer o.mut.Unlock()
 
 	var order models.Order
-	err := o.db.QueryRow("SELECT * FROM orders WHERE id = ?", id).Scan(
+	err := o.db.QueryRow("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE id = $1", id).Scan(
 		&order.Id,
 		&order.Item,
 		&order.Adress,
@@ -122,32 +122,39 @@ func (o *OrderPgxController) PatchOrderById(id string, order *models.Order) (err
 	defer o.mut.Unlock()
 
 	if order.UserId != "" {
-		_, err = o.db.Exec("UPDATE orders SET userId = ? WHERE id = ?", order.UserId, id)
+		_, err = o.db.Exec("UPDATE orders SET userId = $1 WHERE id = $2", order.UserId, id)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 	}
 	if order.Item != "" {
-		_, err = o.db.Exec("UPDATE orders SET item = ? WHERE id = ?", order.Item, id)
+		_, err = o.db.Exec("UPDATE orders SET item = $1 WHERE id = $2", order.Item, id)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 	}
 	if order.Adress != "" {
-		_, err = o.db.Exec("UPDATE orders SET adress = ? WHERE id = ?", order.Adress, id)
+		_, err = o.db.Exec("UPDATE orders SET adress = $1 WHERE id = $2", order.Adress, id)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 	}
 	if order.Count != 0 {
-		_, err = o.db.Exec("UPDATE orders SET count = ? WHERE id = ?", order.Count, id)
+		_, err = o.db.Exec("UPDATE orders SET count = $1 WHERE id = $2", order.Count, id)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
+	}
+
+	// FIXME: cockroach cannot? have triggers
+	_, err = o.db.Exec("UPDATE orders SET updatedAt = NOW() WHERE id = $1", id)
+	if err != nil {
+		log.Fatal(err)
+		return
 	}
 
 	return
@@ -161,7 +168,7 @@ func (o *OrderPgxController) PostOrder(order *models.Order) (err error) {
 	order.Id = cuid.New()
 
 	_, err = o.db.Exec(
-		"INSERT INTO orders (id, userId, item, adress, count) VALUES (?, ?, ?, ?, ?)",
+		"INSERT INTO orders (id, userId, item, adress, count, updatedAt) VALUES ($1, $2, $3, $4, $5, NOW())",
 		order.Id,
 		order.UserId,
 		order.Item,

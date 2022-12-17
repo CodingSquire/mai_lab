@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"orders/db/migrations"
 	"os"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 // enshureMigrationTable enshures that table_migrations exists
 func enshureMigrationTable(db *sql.DB) (err error) {
 	sqlStmt :=`
-	create if not exists table_migrations (id text not null primary key, name text not null);
+	CREATE TABLE IF NOT EXISTS table_migrations (id varchar(255) not null primary key, name varchar(255) not null);
 	`
 	_, err = db.Exec(sqlStmt)
 
