@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"orders/models"
-	"strconv"
 	"sync"
 	"time"
+
+	"github.com/lucsky/cuid"
 )
 
 type OrderMemController struct {
@@ -12,7 +13,21 @@ type OrderMemController struct {
 	mut   sync.Mutex
 }
 
-var globalIndex int
+// GetAllOrdersByUserId implements OrderController
+func (o *OrderMemController) GetAllOrdersByUserId(userId string) []models.Order {
+	o.mut.Lock()
+	defer o.mut.Unlock()
+
+	orders := make([]models.Order, 0)
+
+	for _, order := range o.cache {
+		if order.UserId == userId {
+			orders = append(orders, *order)
+		}
+	}
+
+	return orders
+}
 
 // NewOrderMemController gets new in-memory order controller
 func NewOrderMemController() OrderController {
@@ -47,16 +62,17 @@ func (o *OrderMemController) GetOrderById(id string) (*models.Order, bool) {
 }
 
 // DeleteOrderById deletes order with id if exists
-func (o *OrderMemController) DeleteOrderById(id string) {
+func (o *OrderMemController) DeleteOrderById(id string) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
 	delete(o.cache, id)
+	return
 }
 
 // PatchOrderById sets new order body on id
 // Also update UpdatedAt field with Now()
-func (o *OrderMemController) PatchOrderById(id string, order *models.Order) {
+func (o *OrderMemController) PatchOrderById(id string, order *models.Order) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
@@ -77,20 +93,23 @@ func (o *OrderMemController) PatchOrderById(id string, order *models.Order) {
 
 		o.cache[id] = gotOrder
 	}
+
+	return
 }
 
 // PostOrder setting new order in memory
-func (o *OrderMemController) PostOrder(order *models.Order) {
+func (o *OrderMemController) PostOrder(order *models.Order) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
 	timeNow := time.Now().Nanosecond()
 
-	globalIndex++
-	id := strconv.Itoa(globalIndex)
+	id := cuid.New()
 
 	order.Id = id
 	order.CreatedAt = timeNow
 	order.UpdatedAt = timeNow
 	o.cache[id] = order
+
+	return
 }

@@ -20,6 +20,7 @@ func Config() *Dotenv {
 		for scanner.Scan() {
 			keyValue := strings.Split(scanner.Text(), "=")
 			ret[strings.ToLower(keyValue[0])] = keyValue[1]
+			os.Setenv(keyValue[0], keyValue[1])
 		}
 	}
 
