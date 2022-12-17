@@ -8,6 +8,7 @@ import (
 	"users/internal/api/controllers"
 	"users/internal/api/routers"
 	"users/internal/application/services"
+	"users/internal/contracts"
 	"users/internal/infrastructure/repositories"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,17 +17,18 @@ import (
 
 func main() {
 	port := getPort()
-	client := getMongoClient()
-	router := getRouter(client)
-	router.Run(port)
-}
-
-func getRouter(client *mongo.Client) *routers.Router {
-	userRepository := repositories.NewMongoUserRepository(client.Database("users"))
-	userService := services.NewUserService(userRepository)
+	var repository contracts.UserRepository
+	if os.Getenv("MONGO_URI") != "" {
+		client := getMongoClient()
+		repository = repositories.NewMongoUserRepository(client.Database("users"))
+	} else {
+		repository = repositories.NewInMemoryUserRepository()
+		log.Println("MONGO_URI not set, falling back to in-memory repository")
+	}
+	userService := services.NewUserService(repository)
 	userController := controllers.NewUserController(userService)
 	router := routers.NewRouter(userController)
-	return router
+	router.Run(port)
 }
 
 func getMongoClient() *mongo.Client {
