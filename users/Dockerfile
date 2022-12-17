@@ -8,5 +8,5 @@ WORKDIR /app
 COPY --from=builder /app/users /app
 
 EXPOSE 80
-ENV PORT=80
+ENV PORT_MAIN=80
 ENTRYPOINT ./users

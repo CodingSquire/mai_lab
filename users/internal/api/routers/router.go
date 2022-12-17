@@ -3,6 +3,7 @@ package routers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"regexp"
 	"users/internal/api/common"
@@ -21,26 +22,29 @@ type route struct {
 type Router struct {
 	routingTable   []route
 	userController controllers.UserController
+	//orderController controllers.OrderController
 }
 
 // NewRouter creates a new router with the given user controller.
 func NewRouter(u controllers.UserController) *Router {
 	return &Router{
 		userController: u,
+		//orderController: o,
 	}
 }
 
 // idGroup is a regex group for matching UUIDs.
-const idGroup = "(?P<id>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})"
+const idGroup = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
 
 // setupRoutes sets up the routing table.
 func (r *Router) setupRoutes() {
 	r.routingTable = []route{
 		{http.MethodGet, regexp.MustCompile(`^/users$`), r.userController.GetAllUsers},
-		{http.MethodGet, regexp.MustCompile(`^/users/` + idGroup + `$`), r.userController.GetUserById},
+		{http.MethodGet, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.GetUserById},
 		{http.MethodPost, regexp.MustCompile(`^/users$`), r.userController.CreateUser},
-		{http.MethodPut, regexp.MustCompile(`^/users/` + idGroup + `$`), r.userController.UpdateUser},
-		{http.MethodDelete, regexp.MustCompile(`^/users/` + idGroup + `$`), r.userController.DeleteUser},
+		{http.MethodPut, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.UpdateUser},
+		{http.MethodDelete, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.DeleteUser},
+		//{http.MethodGet, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `/orders$`), r.orderController.GetOrders},
 	}
 }
 
@@ -73,5 +77,8 @@ func getParamsFromRoute(route route, matches []string) map[string]string {
 func (r *Router) Run(port string) {
 	r.setupRoutes()
 	http.Handle("/", middlewares.Adapt(http.HandlerFunc(r.serve), middlewares.LoggingMiddleware()))
-	http.ListenAndServe(":"+port, nil)
+	log.Printf("Listening on port %s", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		panic(err)
+	}
 }
