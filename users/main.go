@@ -15,10 +15,21 @@ import (
 )
 
 func main() {
-	port := os.Getenv("PORT_MAIN")
-	if port == "" {
-		port = "5050"
-	}
+	port := getPort()
+	client := getMongoClient()
+	router := getRouter(client)
+	router.Run(port)
+}
+
+func getRouter(client *mongo.Client) *routers.Router {
+	userRepository := repositories.NewMongoUserRepository(client.Database("users"))
+	userService := services.NewUserService(userRepository)
+	userController := controllers.NewUserController(userService)
+	router := routers.NewRouter(userController)
+	return router
+}
+
+func getMongoClient() *mongo.Client {
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().
 		ApplyURI(os.Getenv("MONGO_URI")).
@@ -29,10 +40,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	userRepository := repositories.NewMongoUserRepository(client.Database("users"))
-	userService := services.NewUserService(userRepository)
-	userController := controllers.NewUserController(userService)
+	return client
+}
 
-	router := routers.NewRouter(userController)
-	router.Run(port)
+func getPort() string {
+	port := os.Getenv("PORT_MAIN")
+	if port == "" {
+		port = "5050"
+	}
+	return port
 }
