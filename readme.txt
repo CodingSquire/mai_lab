@@ -1,6 +1,13 @@
-curl -X POST -d '{"name":"user5678"}' localhost:8000/create
--->// {"id":"b40a9f54-bad4-4b98-9350-2a46507b43db","name":"user5678"}
+create:
+curl  -X POST -d '{"name":"user5671", "email": "oleg@kovinev.ru", "Phone":"9167743904"}' localhost:8000/create
 
-curl -X POST localhost:8000/read?uid=b40a9f54-bad4-4b98-9350-2a46507b43db
--->// {"id":"b40a9f54-bad4-4b98-9350-2a46507b43db","name":"user5678"}
+Check:
+curl -X POST localhost:8000/read?uuid=901a8f51-2c7d-4fb9-9749-2ddc05d0f7c6
+
+Find:
+curl -X POST localhost:8000/search?name=user5671
+
+Delete:
+curl -X POST localhost:8000/delete?uuid=901a8f51-2c7d-4fb9-9749-2ddc05d0f7c6
+
 

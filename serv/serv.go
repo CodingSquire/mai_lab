@@ -8,30 +8,30 @@ import (
 )
 
 type Server struct {
-	srv http.Server //server embedding
+	srv http.Server //входящий обращается в логику--incoming turns to logic
 	us  *user.Users
 }
 
-func NewServer(addr string, h http.Handler) *Server { //business logic outside
-	s := &Server{}
+func NewServer(addr string, h http.Handler) *Server {
+	s := &Server{} //открыть
 
 	s.srv = http.Server{
-		Addr:              addr, //==ListenAndServe()
-		Handler:           h,
-		ReadTimeout:       30 * time.Second,
-		WriteTimeout:      30 * time.Second, // or there will be a constantly hanging client
+		Addr:              addr,             //addres-port
+		Handler:           h,                //muxer
+		ReadTimeout:       30 * time.Second, //иначе бесконечно висящий клиент. Переполнение ресурса
+		WriteTimeout:      30 * time.Second, //otherwise an infinitely hanging client. resource overflow
 		ReadHeaderTimeout: 30 * time.Second,
 	}
 	return s
 }
 
 func (s *Server) Stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second) //add 2 sec
-	s.srv.Shutdown(ctx)
-	cancel()
+	ctx := context.Background()
+	s.srv.Shutdown(ctx) //выключить сервер от контекста --shutdown server from context
 }
 
 func (s *Server) Start(us *user.Users) {
 	s.us = us
-	go s.srv.ListenAndServe() //ListenAndServeTLS() -certification
+	go s.srv.ListenAndServe() //без go сразу остановится//паралльное выполнение. Горутина.
+	//without go, //parallel execution will immediately stop. Coroutines.
 }
