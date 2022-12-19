@@ -8,6 +8,6 @@ http:
 postgresql:
   host: 0.0.0.0
   port: "5432"
-  username: postgres
-  password: 123
-  database: user_service
+  username: root
+  password: root
+  database: users_service

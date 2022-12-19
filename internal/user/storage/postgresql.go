@@ -36,7 +36,7 @@ func (s *storagePG) Create(ctx context.Context, user model.User) error {
 		INSERT INTO users 
 		    (name,email,mobile,password_hash) 
 		VALUES 
-		       ($1, $2,$3,$4) 
+		       ($1,$2,$3,$4) 
 		RETURNING id
 	`
 	log.Printf("SQL Query: %s", formatQuery(q))
@@ -46,7 +46,9 @@ func (s *storagePG) Create(ctx context.Context, user model.User) error {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			pgErr = err.(*pgconn.PgError)
-			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s",
+				pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+
 			log.Println(newErr)
 			return newErr
 		}
@@ -71,6 +73,7 @@ func (s *storagePG) GetUser(ctx context.Context, id string) (model.User, error) 
 
 	return u, nil
 }
+
 func (s *storagePG) GetAll(ctx context.Context) ([]model.User, error) {
 	q := `
 		SELECT id, name, email, mobile FROM public.users;
@@ -106,6 +109,7 @@ func (s *storagePG) Update(ctx context.Context, user model.User) error {
 	//TODO implement me
 	panic("implement me")
 }
+
 func (s *storagePG) Delete(ctx context.Context, id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
