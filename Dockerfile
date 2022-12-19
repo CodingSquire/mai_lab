@@ -1,14 +1,11 @@
-FROM golang:alpine AS builder
-
-
+FROM golang:alpine AS b
 WORKDIR /app
 ADD . /app
+RUN cd /app && go build -o users ./cmd/main.go
 
-RUN go clean --modcache
-RUN go build -mod=readonly -o app cmd/main.go
+FROM alpine
+WORKDIR /a
+COPY --from=b /app/users /app
 
-FROM alpine:latest
-
-COPY --from=builder /app/users /app
-
-CMD ["./app"]
+EXPOSE 8080
+ENTRYPOINT .

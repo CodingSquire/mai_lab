@@ -10,9 +10,9 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-  "name": "kolya",
-  "email": "kolya@gmail.com",
-  "mobile": "8318",
+  "name": "kolgeya3132",
+  "email": "kolywega2323@gmail.com",
+  "mobile": "831eg82234gge41",
   "password": "123"
 }
 
@@ -52,7 +52,7 @@ client.test("Request executed successfully", function() {
 %}
 ###
 
-DELETE http://localhost:8080/users/4d4929e9-8e25-4216-88e8-ec1085605ff2
+DELETE http://localhost:8080/users/93d355f1-2ca6-4446-b21c-1501c94f75a5
 Content-Type: application/json
 
 {}

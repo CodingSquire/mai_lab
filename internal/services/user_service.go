@@ -1,31 +1,31 @@
-package user
+package services
 
 import (
 	"context"
 	"github.com/google/uuid"
 	"log"
-	"mai_lab/internal/user/model"
-	storage2 "mai_lab/internal/user/storage"
+	"mai_lab/internal/domain/models"
+	"mai_lab/internal/infrastructure/storage"
 	"mai_lab/pkg"
 )
 
-type Service interface {
-	CreateUser(ctx context.Context, dto model.CreateUserDTO) error
-	GetUserByID(ctx context.Context, id string) (model.User, error)
-	GetAllUsers(ctx context.Context) ([]model.User, error)
-	UpdateUser(ctx context.Context, dto model.UpdateUserDTO) error
+type UserService interface {
+	CreateUser(ctx context.Context, dto models.CreateUserDTO) error
+	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
+	UpdateUser(ctx context.Context, dto models.UpdateUserDTO) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type service struct {
-	storage storage2.Storage
+	storage storage.Storage
 }
 
-func NewService(userStorage storage2.Storage) Service {
+func NewService(userStorage storage.Storage) UserService {
 	return &service{storage: userStorage}
 }
 
-func (s *service) CreateUser(ctx context.Context, dto model.CreateUserDTO) error {
+func (s *service) CreateUser(ctx context.Context, dto models.CreateUserDTO) error {
 	u := dto.NewUser()
 	if err := s.storage.Create(ctx, u); err != nil {
 		return err
@@ -33,24 +33,24 @@ func (s *service) CreateUser(ctx context.Context, dto model.CreateUserDTO) error
 	return nil
 }
 
-func (s *service) GetUserByID(ctx context.Context, id string) (model.User, error) {
+func (s *service) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
 	u, err := s.storage.GetUser(ctx, id)
 	if err != nil {
-		return model.User{}, err
+		return models.User{}, err
 	}
 	return u, nil
 }
 
-func (s *service) GetAllUsers(ctx context.Context) ([]model.User, error) {
+func (s *service) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	all, err := s.storage.GetAll(ctx)
 	if err != nil {
-		return []model.User{}, err
+		return []models.User{}, err
 	}
 	return all, nil
 }
 
-func (s *service) UpdateUser(ctx context.Context, dto model.UpdateUserDTO) error {
-	var updatedUser model.User
+func (s *service) UpdateUser(ctx context.Context, dto models.UpdateUserDTO) error {
+	var updatedUser models.User
 	log.Println("compare old and new passwords")
 	if dto.OldPassword != dto.NewPassword || dto.NewPassword == "" {
 

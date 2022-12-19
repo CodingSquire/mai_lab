@@ -1,4 +1,4 @@
-package user
+package rest
 
 import (
 	"encoding/json"
@@ -7,8 +7,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"mai_lab/internal/apperror"
+	"mai_lab/internal/domain/models"
 	"mai_lab/internal/handlers"
-	"mai_lab/internal/user/model"
+	"mai_lab/internal/services"
 	"net/http"
 )
 
@@ -18,10 +19,10 @@ const (
 )
 
 type handler struct {
-	service Service
+	service services.UserService
 }
 
-func NewHandler(s Service) handlers.Handler {
+func NewHandler(s services.UserService) handlers.Handler {
 	return &handler{service: s}
 }
 
@@ -62,12 +63,15 @@ func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) error {
 
 	params := r.Context().Value(httprouter.ParamsKey).(httprouter.Params)
 	userUUID := params.ByName("uuid")
-	//userID, err := uuid.Parse(userUUID)
+	userID, err := uuid.Parse(userUUID)
+	if err != nil {
+		return err
+	}
 
 	log.Println(userUUID)
 	log.Println(userUUID)
 
-	user, err := h.service.GetUserByID(r.Context(), userUUID)
+	user, err := h.service.GetUserByID(r.Context(), userID)
 	if err != nil {
 		return err
 	}
@@ -90,7 +94,7 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	log.Println("decode create user dto")
 
-	var dto model.CreateUserDTO
+	var dto models.CreateUserDTO
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
 		return apperror.BadRequestError("invalid JSON scheme")
@@ -119,7 +123,7 @@ func (h *handler) PartiallyUpdateUser(w http.ResponseWriter, r *http.Request) er
 	}
 	log.Println("decode update user dto")
 
-	var updDTO model.UpdateUserDTO
+	var updDTO models.UpdateUserDTO
 	defer r.Body.Close()
 
 	if err := json.NewDecoder(r.Body).Decode(&updDTO); err != nil {

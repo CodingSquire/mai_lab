@@ -6,8 +6,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"mai_lab/internal/config"
-	"mai_lab/internal/user"
-	"mai_lab/internal/user/storage"
+	"mai_lab/internal/infrastructure/storage"
+	"mai_lab/internal/services"
+	"mai_lab/internal/transport/rest"
 	"mai_lab/pkg/client/postgresql"
 	"net"
 	"net/http"
@@ -29,10 +30,10 @@ func main() {
 		log.Fatalln(context.Background(), err)
 	}
 
-	//	storage := storage.NewStorage()
+	//	storage := storage.NewMemoryStorage()
 	storage := storage.NewPostgreStorage(pgClient)
-	userService := user.NewService(storage)
-	userHandler := user.NewHandler(userService)
+	userService := services.NewService(storage)
+	userHandler := rest.NewHandler(userService)
 	userHandler.Register(router)
 
 	start(router, cfg)

@@ -1,4 +1,4 @@
-package model
+package models
 
 import (
 	"github.com/google/uuid"
@@ -24,7 +24,6 @@ type UpdateUserDTO struct {
 
 func (dto *CreateUserDTO) NewUser() User {
 	return User{
-		ID:           uuid.New(),
 		Name:         dto.Name,
 		Email:        dto.Email,
 		Mobile:       dto.Mobile,
