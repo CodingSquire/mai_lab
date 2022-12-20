@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"log"
+	"net"
+	"net/http"
+	"time"
+
 	"mai_lab/internal/config"
 	"mai_lab/internal/infrastructure/storage"
 	"mai_lab/internal/services"
 	"mai_lab/internal/transport/rest"
 	"mai_lab/pkg/client/postgresql"
-	"net"
-	"net/http"
-	"time"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func main() {

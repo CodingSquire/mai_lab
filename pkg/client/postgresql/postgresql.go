@@ -3,8 +3,9 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type pgConfig struct {

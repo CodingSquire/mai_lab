@@ -3,14 +3,15 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
-	"log"
 	"mai_lab/internal/apperror"
 	"mai_lab/internal/domain/models"
 	"mai_lab/internal/handlers"
 	"mai_lab/internal/services"
-	"net/http"
 )
 
 const (

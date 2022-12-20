@@ -2,8 +2,9 @@ package services
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 	"mai_lab/internal/domain/models"
 	"mai_lab/internal/infrastructure/storage"
 	"mai_lab/pkg"
