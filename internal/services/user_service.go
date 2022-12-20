@@ -5,9 +5,10 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"mai_lab/internal/apperror"
 	"mai_lab/internal/domain/models"
 	"mai_lab/internal/infrastructure/storage"
-	"mai_lab/pkg"
 )
 
 type UserService interface {
@@ -51,27 +52,24 @@ func (s *service) GetAllUsers(ctx context.Context) ([]models.User, error) {
 }
 
 func (s *service) UpdateUser(ctx context.Context, dto models.UpdateUserDTO) error {
-	var updatedUser models.User
+
+	user, err := s.storage.GetUser(ctx, dto.ID)
+	if err != nil {
+		return err
+	}
+
 	log.Println("compare old and new passwords")
 	if dto.OldPassword != dto.NewPassword || dto.NewPassword == "" {
-
-		//TODO implement
-		//user, err := s.storage.GetUser(ctx, dto.ID)
-		//if err != nil {
-		//	return err
-		//}
-		//log.Println("compare hash current password and old password")
-		//if pkg.GeneratePasswordHash(dto.OldPassword) != user.PasswordHash {
-		//	return apperror.BadRequestError("old password does not match current password")
-		//}
-		//dto.Password = dto.NewPassword
+		log.Println("compare hash current password and old password")
+		if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(dto.OldPassword)); err != nil {
+			return apperror.BadRequestError("old password does not match current password")
+		}
+		dto.Password = dto.NewPassword
 	}
-	updatedUser = dto.UpdateUser()
 
-	log.Println("generate password hash")
-	updatedUser.PasswordHash = pkg.GeneratePasswordHash(dto.NewPassword)
+	dto.UpdateUser(&user)
 
-	if err := s.storage.Update(ctx, updatedUser); err != nil {
+	if err := s.storage.Update(ctx, user); err != nil {
 		return err
 	}
 	return nil

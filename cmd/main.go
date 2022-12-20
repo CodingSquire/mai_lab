@@ -27,38 +27,35 @@ func main() {
 		cfg.PostgreSQL.Username, cfg.PostgreSQL.Password,
 		cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
 	)
+
+	// Attempt to connect to the database
+	// if it does not connect, then we create a cache storage
+	var userStorage storage.Storage
 	pgClient, err := postgresql.NewClient(context.Background(), pgConfig)
 	if err != nil {
 		log.Fatalln(context.Background(), err)
+		userStorage = storage.NewMemoryStorage()
+	} else {
+		userStorage = storage.NewPostgreStorage(pgClient)
 	}
 
-	//	storage := storage.NewMemoryStorage()
-	storage := storage.NewPostgreStorage(pgClient)
-	userService := services.NewService(storage)
+	userService := services.NewService(userStorage)
 	userHandler := rest.NewHandler(userService)
 	userHandler.Register(router)
 
-	start(router, cfg)
+	startHTTP(router, cfg)
 
 }
 
-func start(router *httprouter.Router, cfg *config.Config) {
-	log.Println("start application")
+func startHTTP(router *httprouter.Router, cfg *config.Config) {
+	log.Println("HTTP Server initializing")
 
-	var listener net.Listener
-	var listenErr error
-
-	if cfg.HTTP.Type == "sock" {
-		// TODO  socket ?
-	} else {
-		log.Println("listen tcp")
-		listener, listenErr = net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port))
-		log.Printf("server is listening port %s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port))
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	if listenErr != nil {
-		log.Fatalln(listenErr)
-	}
+	log.Printf("server is listening port %s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port)
 
 	server := &http.Server{
 		Handler:      router,
@@ -66,6 +63,8 @@ func start(router *httprouter.Router, cfg *config.Config) {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Fatalln(server.Serve(listener))
+	if err = server.Serve(listener); err != nil {
+		log.Fatalln(err)
+	}
 
 }

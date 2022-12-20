@@ -22,12 +22,6 @@ func NewPostgreStorage(client PostgreSQLClient) Storage {
 	}
 }
 
-const (
-	scheme      = "public"
-	table       = "product"
-	tableScheme = scheme + "." + table
-)
-
 func formatQuery(q string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(q, "\t", ""), "\n", " ")
 }
@@ -109,8 +103,28 @@ func (s *storagePG) GetAll(ctx context.Context) ([]models.User, error) {
 }
 
 func (s *storagePG) Update(ctx context.Context, user models.User) error {
-	//TODO implement me
-	panic("implement me")
+	q := `
+		UPDATE users_service.public.users  SET name = $1, mobile = $2,  email= $3, password_hash = $4 WHERE id = $5
+	`
+	log.Printf(fmt.Sprintf("SQL Query: %s", formatQuery(q)))
+
+	var ID uuid.UUID
+	row := s.client.QueryRow(ctx, q, user.Name, user.Mobile, user.Email, user.PasswordHash, user.ID)
+	if err := row.Scan(&ID); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			pgErr = err.(*pgconn.PgError)
+			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLState: %s",
+				pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+
+			log.Println(newErr)
+			return newErr
+		}
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
 
 func (s *storagePG) Delete(ctx context.Context, id uuid.UUID) error {
