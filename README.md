@@ -1,5 +1,24 @@
 # mai_lab
 
+## Запуск
+```
+docker-compose build && docker-compose up
+```
+
+## Миграция БД
+```
+docker run -v $(pwd)/migrations:/migrations --network go_services_lab_go_app migrate/migrate -path=/migrations/ -database postgres://postgres:qweasd@postgres_container:5432/postgres?sslmode=disable up 2
+```
+
+## PgAdmin
+По пути `http://localhost:5050`
+
+## gRPC
+Для генерации
+```
+protoc --proto_path=proto --go_out=plugins=grpc:pkg/user/proto --go_opt=paths=source_relative users.proto
+```
+
 ## Задание №1 
 ### Сервис пользователей
 

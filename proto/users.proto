@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package proto;
+
+service Users {
+    rpc IsExistById(IsExistByIdRequest) returns (IsExistByIdResponse) {}
+}
+
+message IsExistByIdRequest {
+    int32 id = 1; 
+}
+
+message IsExistByIdResponse {
+    bool isExist = 1;
+}

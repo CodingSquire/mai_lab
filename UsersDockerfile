@@ -1,0 +1,12 @@
+FROM golang:alpine AS builder
+WORKDIR /app
+ADD . /app
+RUN cd /app && go build -o gsl ./cmd/users/main.go
+
+FROM alpine
+WORKDIR /app
+COPY --from=builder /app/gsl /app
+
+EXPOSE 8001
+
+CMD ["./gsl"]
