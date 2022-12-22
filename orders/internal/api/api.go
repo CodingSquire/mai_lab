@@ -33,12 +33,12 @@ func (a *OrdersApi) SetRoutes(r http.HttpRouter) {
 
 // GetOrder returns order object if exists
 func (a *OrdersApi) GetOrder(r *http.RouteContext) {
-	order, ok := a.OrderController.GetOrderById(r.Params("id"))
+	order, err := a.OrderController.GetOrderById(r.Params("id"))
 
-	if ok {
+	if err == nil {
 		r.SendJSON(order)
 	} else {
-		r.SendString(fmt.Sprintf("Failed to get, %q", r.Params("id")))
+		r.SendError(err)
 	}
 }
 

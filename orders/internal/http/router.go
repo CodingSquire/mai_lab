@@ -169,6 +169,12 @@ func parsePattern(pattern string) *regexp.Regexp {
 	return regexp.MustCompile(buffer.String())
 }
 
+func (r * Router) SetLegacyHandler(pathRaw string, handler http.Handler) {
+	r.SetHandler("*", pathRaw, func(ctx *RouteContext) {
+		handler.ServeHTTP(ctx.W, ctx.R)
+	})
+}
+
 // SetHandler is setting new handler on route pattern
 func (r *Router) SetHandler(method string, pathRaw string, handler RouteHandler) {
 	// Cannot have an empty path

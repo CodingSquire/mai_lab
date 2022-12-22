@@ -8,6 +8,8 @@ require (
 	github.com/jackc/pgx/v5 v5.2.0 // indirect
 	github.com/lucsky/cuid v1.2.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
+	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/text v0.3.8 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )

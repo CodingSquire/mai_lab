@@ -3,12 +3,13 @@ package http
 import (
 	"fmt"
 	"net/http"
-	"orders/table"
+	"orders/internal/table"
 	"reflect"
 )
 
 // Routing base interface for some sub routing
 type HttpRouter interface {
+	Handle(pattern string, handler http.Handler)
 	Get(pattern string, handler RouteHandler)
 	Post(pattern string, handler RouteHandler)
 	Delete(pattern string, handler RouteHandler)
@@ -73,6 +74,9 @@ func (a *HttpApp) Manage(state interface{}) {
 
 // Main route methods on main app
 
+func (a *HttpApp) Handle(pattern string, handler http.Handler) {
+	a.Router.SetLegacyHandler(pattern, handler)
+}
 func (a *HttpApp) Get(pattern string, handler RouteHandler) {
 	a.Router.SetHandler(http.MethodGet, pattern, handler)
 }
@@ -112,6 +116,9 @@ func (g *HttpGroup) Group(path string) HttpRouter {
 	}
 }
 
+func (g *HttpGroup) Handle(pattern string, handler http.Handler) {
+	g.app.Handle(g.path + pattern, handler)
+}
 func (g *HttpGroup) Use(handlers ...RouteHandler) {
 	for _, handler := range handlers {
 		g.app.Router.SetHandler("*", g.path,  handler)
