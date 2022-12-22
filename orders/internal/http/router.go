@@ -169,6 +169,7 @@ func parsePattern(pattern string) *regexp.Regexp {
 	return regexp.MustCompile(buffer.String())
 }
 
+// SetLegacyHandler is a wrapper for http.HandleFunc
 func (r * Router) SetLegacyHandler(pathRaw string, handler http.Handler) {
 	r.SetHandler("*", pathRaw, func(ctx *RouteContext) {
 		handler.ServeHTTP(ctx.W, ctx.R)
