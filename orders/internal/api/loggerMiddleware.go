@@ -2,7 +2,7 @@ package api
 
 import (
 	"fmt"
-	"orders/http"
+	"orders/internal/http"
 	"time"
 )
 

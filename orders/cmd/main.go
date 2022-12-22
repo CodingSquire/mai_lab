@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"orders/api"
-	"orders/controllers"
-	"orders/db"
-	"orders/dotenv"
-	"orders/http"
+	"orders/internal/api"
+	"orders/internal/controllers"
+	"orders/internal/db"
+	"orders/internal/dotenv"
+	"orders/internal/http"
 )
 
 func main() {

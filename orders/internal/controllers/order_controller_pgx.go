@@ -3,7 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"log"
-	"orders/models"
+	"orders/internal/models"
 	"sync"
 
 	"github.com/lucsky/cuid"
@@ -23,22 +23,22 @@ func (o *OrderPgxController) GetAllOrdersByUserId(userId string) []models.Order 
 
 	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE userId = $1", userId)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return res
 	}
 
 	for rows.Next() {
 		var order models.Order
 		err = rows.Scan(
-			&order.Id,
+			&order.ID,
 			&order.Item,
-			&order.Adress,
+			&order.Address,
 			&order.Count,
 			&order.CreatedAt,
 			&order.UpdatedAt,
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			return res
 		}
 		res = append(res, order)
@@ -54,7 +54,7 @@ func (o *OrderPgxController) DeleteOrderById(id string) (err error) {
 
 	_, err = o.db.Exec("DELETE FROM orders WHERE id = $1", id)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return
 	}
 
@@ -66,26 +66,26 @@ func (o *OrderPgxController) GetAllOrders() []models.Order {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	res := make([]models.Order, 1)
+	res := make([]models.Order, 0)
 
 	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return res
 	}
 
 	for rows.Next() {
 		var order models.Order
 		err = rows.Scan(
-			&order.Id,
+			&order.ID,
 			&order.Item,
-			&order.Adress,
+			&order.Address,
 			&order.Count,
 			&order.CreatedAt,
 			&order.UpdatedAt,
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			return res
 		}
 		res = append(res, order)
@@ -95,25 +95,24 @@ func (o *OrderPgxController) GetAllOrders() []models.Order {
 }
 
 // GetOrderById implements OrderController
-func (o *OrderPgxController) GetOrderById(id string) (*models.Order, bool) {
+func (o *OrderPgxController) GetOrderById(id string) (*models.Order, error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
 	var order models.Order
 	err := o.db.QueryRow("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE id = $1", id).Scan(
-		&order.Id,
+		&order.ID,
 		&order.Item,
-		&order.Adress,
+		&order.Address,
 		&order.Count,
 		&order.CreatedAt,
 		&order.UpdatedAt,
 	)
 	if err != nil {
-		log.Fatal(err)
-		return nil, false
+		return nil, err
 	}
 
-	return &order, true
+	return &order, nil
 }
 
 // PatchOrderById implements OrderController
@@ -121,39 +120,18 @@ func (o *OrderPgxController) PatchOrderById(id string, order *models.Order) (err
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	if order.UserId != "" {
-		_, err = o.db.Exec("UPDATE orders SET userId = $1 WHERE id = $2", order.UserId, id)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	}
-	if order.Item != "" {
-		_, err = o.db.Exec("UPDATE orders SET item = $1 WHERE id = $2", order.Item, id)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	}
-	if order.Adress != "" {
-		_, err = o.db.Exec("UPDATE orders SET adress = $1 WHERE id = $2", order.Adress, id)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	}
-	if order.Count != 0 {
-		_, err = o.db.Exec("UPDATE orders SET count = $1 WHERE id = $2", order.Count, id)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	}
 
-	// FIXME: cockroach cannot? have triggers
-	_, err = o.db.Exec("UPDATE orders SET updatedAt = NOW() WHERE id = $1", id)
+	_, err = o.db.Exec(
+		"UPDATE orders SET userId = $1, item = $2, adress = $3, count = $4, updatedAt = NOW() WHERE id = $5",
+		order.UserID,
+		order.Item,
+		order.Address,
+		order.Count,
+		id,
+	)
+
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return
 	}
 
@@ -165,14 +143,16 @@ func (o *OrderPgxController) PostOrder(order *models.Order) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	order.Id = cuid.New()
+	if order.ID == "" {
+		order.ID = cuid.New()
+	}
 
 	_, err = o.db.Exec(
-		"INSERT INTO orders (id, userId, item, adress, count, updatedAt) VALUES ($1, $2, $3, $4, $5, NOW())",
-		order.Id,
-		order.UserId,
+		"INSERT INTO orders (id, userId, item, adress, count) VALUES ($1, $2, $3, $4, $5)",
+		order.ID,
+		order.UserID,
 		order.Item,
-		order.Adress,
+		order.Address,
 		order.Count,
 	)
 

@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	"orders/models"
+	"errors"
+	"orders/internal/models"
 	"sync"
 	"time"
 
@@ -21,7 +22,7 @@ func (o *OrderMemController) GetAllOrdersByUserId(userId string) []models.Order 
 	orders := make([]models.Order, 0)
 
 	for _, order := range o.cache {
-		if order.UserId == userId {
+		if order.UserID == userId {
 			orders = append(orders, *order)
 		}
 	}
@@ -53,12 +54,15 @@ func (o *OrderMemController) GetAllOrders() []models.Order {
 
 // GetOrderById gets order with id
 // or returns (, false) if one doesn't exists
-func (o *OrderMemController) GetOrderById(id string) (*models.Order, bool) {
+func (o *OrderMemController) GetOrderById(id string) (*models.Order, error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
 	order, ok := o.cache[id]
-	return order, ok
+	if !ok {
+		return nil, errors.New("Order not found")
+	}
+	return order, nil
 }
 
 // DeleteOrderById deletes order with id if exists
@@ -76,24 +80,16 @@ func (o *OrderMemController) PatchOrderById(id string, order *models.Order) (err
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	gotOrder, ok := o.cache[id]
-
-	if ok {
-		timeNow := time.Now().Nanosecond()
-
-		if order.Item != "" {
-			gotOrder.Item = order.Item
-		}
-
-		if order.UserId != "" {
-			gotOrder.UserId = order.UserId
-		}
-
-		gotOrder.UpdatedAt = timeNow
-
-		o.cache[id] = gotOrder
+	got_order, ok := o.cache[id]
+	if !ok {
+		err = errors.New("Order not found")
+		return
 	}
 
+	order.ID = id
+	order.CreatedAt = got_order.CreatedAt
+	order.UpdatedAt = time.Now()
+	o.cache[id] = order
 	return
 }
 
@@ -102,14 +98,14 @@ func (o *OrderMemController) PostOrder(order *models.Order) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
-	timeNow := time.Now().Nanosecond()
+	timeNow := time.Now()
 
-	id := cuid.New()
-
-	order.Id = id
+	if order.ID == "" {
+		order.ID = cuid.New()
+	}
 	order.CreatedAt = timeNow
 	order.UpdatedAt = timeNow
-	o.cache[id] = order
+	o.cache[order.ID] = order
 
 	return
 }

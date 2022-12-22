@@ -2,9 +2,9 @@ package api
 
 import (
 	"fmt"
-	"orders/controllers"
-	"orders/dtos"
-	"orders/http"
+	"orders/internal/controllers"
+	"orders/internal/dtos"
+	"orders/internal/http"
 )
 
 type OrdersApi struct {
