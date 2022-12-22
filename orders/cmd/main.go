@@ -7,6 +7,7 @@ import (
 	"orders/internal/db"
 	"orders/internal/dotenv"
 	"orders/internal/http"
+	"orders/rpc/orders"
 )
 
 func main() {
@@ -26,6 +27,10 @@ func main() {
 	ordersApi := api.NewOrdersApi(orderController)
 	ordersApi.SetRoutes(app)
 
+	serverImpl := api.NewTwirpServer(orderController)
+	twirpHandler := orders.NewOrdersServer(serverImpl)
+
+	app.Handle(twirpHandler.PathPrefix(), twirpHandler)
 	// app.Use(api.LoggerMiddleware)
 
 	log.Fatal(app.Run(config.Get("PORT")))
