@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"mai_lab/internal/config"
+	"mai_lab/internal/controller/rest"
 	"mai_lab/internal/infrastructure/storage"
 	"mai_lab/internal/services"
-	"mai_lab/internal/transport/rest"
 	"mai_lab/pkg/client/postgresql"
 
 	"github.com/julienschmidt/httprouter"
@@ -24,8 +24,6 @@ func main() {
 
 	cfg := config.GetConfig(".")
 	pgConfig := postgresql.NewPgConfig(
-		//cfg.PostgreSQL.Username, cfg.PostgreSQL.Password,
-		//cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
 		cfg.Username, cfg.Password,
 		cfg.Host, cfg.Portdb, cfg.Database,
 	)

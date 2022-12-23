@@ -37,18 +37,18 @@ services:
     networks:
       - go_network
 
-  migrate:
-    image: migrate/migrate
-    networks:
-      - go_network
-    volumes:
-      - ./migrations:/migrations
-    command:  migrate -path ./migrations -database "postgresql://root:root@pg_container:5432/users_service?sslmode=disable" -verbose up
-     # [ "-path", "/database", "-database",  "postgresql://root:root@pg_container:5432/users_service?sslmode=disable", "up" ]
-    links:
-      - postgres
-    depends_on:
-      - postgres
+#  migrate:
+#    image: migrate/migrate
+#    networks:
+#      - go_network
+#    volumes:
+#      - ./migrations:/migrations
+#    command:  migrate -path ./migrations -database "postgresql://root:root@pg_container:5432/users_service?sslmode=disable" -verbose up
+#     # [ "-path", "/database", "-database",  "postgresql://root:root@pg_container:5432/users_service?sslmode=disable", "up" ]
+#    links:
+#      - postgres
+#    depends_on:
+#      - postgres
 
 networks:
   go_network:

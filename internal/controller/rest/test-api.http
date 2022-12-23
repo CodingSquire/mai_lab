@@ -4,15 +4,13 @@ Content-Type: application/json
 {}
 
 ###  Create user
-
-
 POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-  "name": "kolgeya3132",
-  "email": "kolywega2323@gmail.com",
-  "mobile": "831eg82234gge41",
+  "name": "kolya",
+  "email": "kolya2323@gmail.com",
+  "mobile": "89998889977",
   "password": "123"
 }
 
