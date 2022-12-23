@@ -13,6 +13,7 @@ import (
 	"mai_lab/internal/infrastructure/storage"
 	"mai_lab/internal/services"
 	"mai_lab/pkg/client/postgresql"
+	"mai_lab/rpc"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -40,6 +41,10 @@ func main() {
 	}
 
 	userService := services.NewService(userStorage)
+
+	twiprService := services.NewTwirpService(userStorage)
+	rpc.NewUsersServer(twiprService)
+
 	userHandler := rest.NewHandler(userService)
 	userHandler.Register(router)
 

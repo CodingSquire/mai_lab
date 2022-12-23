@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"mai_lab/rpc"
 )
 
 type CreateUserDTO struct {
@@ -56,4 +57,22 @@ func (dto *UpdateUserDTO) UpdateUser(u *User) {
 		}
 		u.PasswordHash = string(hashedPassword)
 	}
+}
+
+func TwirpFromUser(user *User) *rpc.User {
+	return &rpc.User{
+		Id:       user.ID.String(),
+		Name:     user.Name,
+		Email:    user.Email,
+		Mobile:   user.Mobile,
+		Password: "",
+	}
+}
+
+func TwirpFromUsers(user []User) []*rpc.User {
+	var users []*rpc.User
+	for _, u := range user {
+		users = append(users, TwirpFromUser(&u))
+	}
+	return users
 }
