@@ -127,7 +127,11 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request, state *m
 
 // Main walk function where we find next sutable route to handle
 func (router *Router) next(ctx *RouteContext) (err error) {
-	for ctx.index + 1 < len(router.routes) {
+	if len(router.routes) == 0 {
+		return fmt.Errorf("No routes found")
+	}
+
+	for ctx.index < len(router.routes) - 1 {
 		// getting new route
 		ctx.index++
 		route := router.routes[ctx.index]

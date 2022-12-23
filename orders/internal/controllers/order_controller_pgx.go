@@ -21,7 +21,7 @@ func (o *OrderPgxController) GetAllOrdersByUserId(userId string) []models.Order 
 
 	res := make([]models.Order, 1)
 
-	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE userId = $1", userId)
+	rows, err := o.db.Query("SELECT id, userId, item, adress, count, createdAt, updatedAt FROM orders WHERE userId = $1", userId)
 	if err != nil {
 		log.Print(err)
 		return res
@@ -31,6 +31,7 @@ func (o *OrderPgxController) GetAllOrdersByUserId(userId string) []models.Order 
 		var order models.Order
 		err = rows.Scan(
 			&order.ID,
+			&order.UserID,
 			&order.Item,
 			&order.Address,
 			&order.Count,
@@ -68,7 +69,7 @@ func (o *OrderPgxController) GetAllOrders() []models.Order {
 
 	res := make([]models.Order, 0)
 
-	rows, err := o.db.Query("SELECT id, item, adress, count, createdAt, updatedAt FROM orders")
+	rows, err := o.db.Query("SELECT id, userId, item, adress, count, createdAt, updatedAt FROM orders")
 	if err != nil {
 		log.Print(err)
 		return res
@@ -78,6 +79,7 @@ func (o *OrderPgxController) GetAllOrders() []models.Order {
 		var order models.Order
 		err = rows.Scan(
 			&order.ID,
+			&order.UserID,
 			&order.Item,
 			&order.Address,
 			&order.Count,
@@ -100,8 +102,9 @@ func (o *OrderPgxController) GetOrderById(id string) (*models.Order, error) {
 	defer o.mut.Unlock()
 
 	var order models.Order
-	err := o.db.QueryRow("SELECT id, item, adress, count, createdAt, updatedAt FROM orders WHERE id = $1", id).Scan(
+	err := o.db.QueryRow("SELECT id, userId, item, adress, count, createdAt, updatedAt FROM orders WHERE id = $1", id).Scan(
 		&order.ID,
+		&order.UserID,
 		&order.Item,
 		&order.Address,
 		&order.Count,

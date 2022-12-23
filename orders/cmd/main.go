@@ -21,17 +21,17 @@ func main() {
 	defer db.Close()
 
 	app := http.NewApp()
+	app.Use(api.LoggerMiddleware)
 
-	// orderController := controllers.NewOrderMemController()
 	orderController := controllers.NewPgxController(db)
-	ordersApi := api.NewOrdersApi(orderController)
-	ordersApi.SetRoutes(app)
 
 	serverImpl := api.NewTwirpServer(orderController)
 	twirpHandler := orders.NewOrdersServer(serverImpl)
-
 	app.Handle(twirpHandler.PathPrefix(), twirpHandler)
-	// app.Use(api.LoggerMiddleware)
+
+	// orderController := controllers.NewOrderMemController()
+	ordersApi := api.NewOrdersApi(orderController)
+	ordersApi.SetRoutes(app)
 
 	log.Fatal(app.Run(config.Get("PORT")))
 }

@@ -18,16 +18,19 @@ type TwirpServer struct{
 func (s *TwirpServer) CreateOrder(ctx context.Context, req *orders.CreateOrderRequest) (*orders.CreateOrderResponse, error) {
 	order := models.Order {
 		ID: cuid.New(),
-		UserID: req.UserId,
-		Item: req.Item,
-		Count: int(req.Count),
-		Address: req.Adress,
+		UserID: req.GetUserId(),
+		Item: req.GetItem(),
+		Count: int(req.GetCount()),
+		Address: req.GetAdress(),
+	}
+	
+	err := s.OrderController.PostOrder(&order)
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.OrderController.PostOrder(&order)
 	twirpOrder := dtos.TwirpFromOrder(&order)
-
-	return &orders.CreateOrderResponse{ Order: twirpOrder }, err
+	return &orders.CreateOrderResponse{ Order: twirpOrder }, nil
 }
 
 // DeleteOrder deletes an order
