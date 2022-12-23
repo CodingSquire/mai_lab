@@ -1,0 +1,73 @@
+version: '3.1'
+
+services:
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://root:example@mongo:27017
+      PORT_MAIN: 5050
+      ORDERS_URL: http://orders:8080
+  
+  orders:
+    build:
+      context: ./orders
+      dockerfile: ./build/Dockerfile.orders
+    ports:
+      - "8080:8080"
+    depends_on:
+      - users
+      - cockroach
+    environment:
+      PORT: 8080
+      COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+  
+  cockroach:
+    image: cockroachdb/cockroach:v22.2.1
+    restart: always
+    command: start-single-node
+    environment:
+      COCKROACH_DATABASE: defaultdb
+      COCKROACH_USER: piloswine
+      COCKROACH_PASSWORD: password
+    ports:
+        - "26257:26257"
+        - "8090:8080"
+    
+  cockroach-migrations:
+    build:
+      context: ./orders
+      dockerfile: ./build/Dockerfile.migrations
+    environment:
+      COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
+    depends_on:
+      - orders
+    volumes:
+      - ./orders/tools/migrations/migrations:/app/src:ro
+    command: up ./src --persist
