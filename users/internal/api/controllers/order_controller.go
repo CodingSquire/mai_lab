@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"users/internal/api/common"
+	"users/internal/contracts"
 	"users/rpc/orders"
 
 	"github.com/google/uuid"
@@ -21,6 +23,7 @@ type OrderController interface {
 
 type orderController struct {
 	ordersClient orders.Orders
+	service      contracts.UserService
 }
 
 // DeleteOrderById gets the order id from the context and deletes the order.
@@ -112,7 +115,7 @@ func (c *orderController) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
-// CreateOrderByUserId implements OrderController
+// CreateOrderByUserId creates an order by user id.
 func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
@@ -121,6 +124,13 @@ func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	_, err = c.service.GetUserById(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	var order orders.Order
 	err = json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
@@ -136,6 +146,7 @@ func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Req
 	}
 	newOrder, err := c.ordersClient.CreateOrder(r.Context(), &orderRequest)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -154,6 +165,12 @@ func (c *orderController) GetAllOrdersByUserId(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	_, err = c.service.GetUserById(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	orders, err := c.ordersClient.GetAllOrdersByUserId(r.Context(), &orders.GetAllOrdersByUserIdRequest{
 		UserId: userId.String(),
 	})
@@ -167,10 +184,11 @@ func (c *orderController) GetAllOrdersByUserId(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(orders)
 }
 
-func NewOrderController() OrderController {
+func NewOrderController(service contracts.UserService) OrderController {
 	ordersClient := orders.NewOrdersProtobufClient(os.Getenv("ORDERS_URL"), &http.Client{})
 
 	return &orderController{
 		ordersClient: ordersClient,
+		service:      service,
 	}
 }

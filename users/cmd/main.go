@@ -27,7 +27,7 @@ func main() {
 	}
 	userService := services.NewUserService(repository)
 	userController := controllers.NewUserController(userService)
-	ordersController := controllers.NewOrderController()
+	ordersController := controllers.NewOrderController(userService)
 	router := routers.NewRouter(userController, ordersController)
 	router.Run(port)
 }
