@@ -1,0 +1,63 @@
+GET http://localhost:8080/users
+Content-Type: application/json
+
+{}
+
+###  Create user
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "kolya",
+  "email": "kolya2323@gmail.com",
+  "mobile": "89998889977",
+  "password": "123"
+}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 201, "Response status is not 201");
+});
+%}
+
+###
+
+PUT http://localhost:8080/users/1
+Content-Type: application/json
+
+{}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 204, "Response status is not 204");
+});
+%}
+
+###
+
+PATCH http://localhost:8080/users/f9388c9c-42dd-457d-8cf9-af7d777f33b8
+Content-Type: application/json
+
+{
+  "old_password": "123",
+  "mobile": "8-999-999-99-99"
+}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 204, "Response status is not 204");
+});
+%}
+###
+
+DELETE http://localhost:8080/users/93d355f1-2ca6-4446-b21c-1501c94f75a5
+Content-Type: application/json
+
+{}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 204, "Response status is not 204");
+});
+%}
+###
