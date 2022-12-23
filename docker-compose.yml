@@ -10,7 +10,7 @@ services:
     depends_on:
       - mongo
     environment:
-      MONGO_URI: mongodb://root:example@localhost:27017
+      MONGO_URI: mongodb://root:example@mongo:27017
       PORT_MAIN: 5050
       ORDERS_URL: http://orders:8080
   
