@@ -70,4 +70,4 @@ services:
       - orders
     volumes:
       - ./orders/tools/migrations/migrations:/app/src:ro
-    command: up ./src
+    command: up ./src --persist

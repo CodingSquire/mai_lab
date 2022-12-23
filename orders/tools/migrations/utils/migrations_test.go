@@ -1,16 +1,17 @@
 package utils
 
 import (
-	"orders/internal/db"
-	"orders/internal/dotenv"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/innerave/mai_lab/orders/internal/db"
+	"github.com/innerave/mai_lab/orders/internal/dotenv"
 )
 
 func TestParseNoArgs(t *testing.T) {
 	os.Args = []string{"migrations"}
-	_, _, err := ParseArgs()
+	_, _, _, err := ParseArgs()
 	if err.Error() != "Not enough arguments" {
 		t.Errorf("Expected error, got %s", err)
 	}
@@ -18,7 +19,7 @@ func TestParseNoArgs(t *testing.T) {
 
 func TestParseUpArg(t *testing.T) {
 	os.Args = []string{"migrations", "up"}
-	_, _, err := ParseArgs()
+	_, _, _, err := ParseArgs()
 	if err == nil {
 		t.Errorf("Expected error, got %s", err)
 	}
@@ -27,7 +28,7 @@ func TestParseUpArg(t *testing.T) {
 func TestParseUpArgPath(t *testing.T) {
 	tmp := os.TempDir()
 	os.Args = []string{"migrations", "up", tmp}
-	cmd, path, err := ParseArgs()
+	cmd, path, _, err := ParseArgs()
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -36,6 +37,24 @@ func TestParseUpArgPath(t *testing.T) {
 	}
 	if path != tmp {
 		t.Errorf("Expected path to be %s, got %s", tmp, path)
+	}
+}
+
+func TestParsePersisrFlagArg(t *testing.T) {
+	tmp := os.TempDir()
+	os.Args = []string{"migrations", "up", tmp, "--persist"}
+	cmd, path, flags, err := ParseArgs()
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+	if cmd != "up" {
+		t.Errorf("Expected cmd to be up, got %s", cmd)
+	}
+	if path != tmp {
+		t.Errorf("Expected path to be %s, got %s", tmp, path)
+	}
+	if flags.Persist != true {
+		t.Errorf("Expected persist to be true, got %t", flags.Persist)
 	}
 }
 

@@ -7,24 +7,33 @@ import (
 	"path/filepath"
 )
 
-func ParseArgs() (cmd, path string, err error) {
+type Flags struct {
+	Persist bool
+}
+
+func ParseArgs() (string, string, Flags, error) {
+	flags := Flags{}
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: migration [up|down] <path>")
-		return "", "", fmt.Errorf("Not enough arguments")
+		fmt.Println("Usage: migration [up|down] <path> [--persist]")
+		return "", "", flags, fmt.Errorf("Not enough arguments")
 	}
 
-	cmd = os.Args[1]
-	path = "internal/db/migrations"
+	cmd := os.Args[1]
+	path := "internal/db/migrations"
 
 	if len(os.Args) > 2 {
 		path = os.Args[2]
 	}
 
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return "", "", fmt.Errorf("Path %s does not exist", path)
+	if len(os.Args) > 3 && os.Args[3] == "--persist" {
+		flags.Persist = true
 	}
 
-	return
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return "", "", flags, fmt.Errorf("Path %s does not exist", path)
+	}
+
+	return cmd, path, flags, nil
 }
 
 func Run_down(path string, db *sql.DB) error {
