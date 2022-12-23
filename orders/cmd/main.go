@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-	"orders/internal/api"
-	"orders/internal/controllers"
-	"orders/internal/db"
-	"orders/internal/dotenv"
-	"orders/internal/http"
-	"orders/rpc/orders"
+	"github.com/innerave/mai_lab/orders/internal/api"
+	"github.com/innerave/mai_lab/orders/internal/controllers"
+	"github.com/innerave/mai_lab/orders/internal/db"
+	"github.com/innerave/mai_lab/orders/internal/dotenv"
+	"github.com/innerave/mai_lab/orders/internal/http"
+	"github.com/innerave/mai_lab/orders/rpc/orders"
 	"os"
 )
 

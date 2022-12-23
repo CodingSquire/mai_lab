@@ -3,7 +3,7 @@ FROM golang:alpine AS builder
 WORKDIR /app
 
 ADD . .
-RUN go build -mod=readonly -o migrations ./migrations.go
+RUN go build -o migrations ./tools/migrations/migrations.go
 
 FROM alpine AS runner
 

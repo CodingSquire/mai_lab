@@ -10,4 +10,4 @@ FROM alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/orders .
 
-ENTRYPOINT ./orders
+ENTRYPOINT ["./orders"]

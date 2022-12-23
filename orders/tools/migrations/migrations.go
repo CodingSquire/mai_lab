@@ -2,7 +2,10 @@ package main
 
 import (
 	"log"
-	"migrations/utils"
+
+	"github.com/innerave/mai_lab/orders/internal/db"
+	"github.com/innerave/mai_lab/orders/internal/dotenv"
+	"github.com/innerave/mai_lab/orders/tools/migrations/utils"
 )
 
 func main() {
