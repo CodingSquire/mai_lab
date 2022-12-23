@@ -14,3 +14,8 @@ func Init() (*sql.DB, error) {
 	err = db.Ping()
 	return db, err
 }
+
+func InitWithoutPing() (*sql.DB, error) {
+	db, err := sql.Open("pgx", os.Getenv("COCKROACH_DB"))
+	return db, err
+}

@@ -14,7 +14,7 @@ import (
 func main() {
 	dotenv.Config()
 
-	db, err := db.Init()
+	db, err := db.InitWithoutPing()
 	if err != nil {
 		log.Fatal(err)
 		return
