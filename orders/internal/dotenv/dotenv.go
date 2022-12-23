@@ -28,5 +28,9 @@ func Config() *Dotenv {
 }
 
 func (d *Dotenv) Get(key string) string {
-	return d._params[strings.ToLower(key)]
+	res, ok := d._params[strings.ToLower(key)]
+	if !ok {
+		return ""
+	}
+	return res
 }
