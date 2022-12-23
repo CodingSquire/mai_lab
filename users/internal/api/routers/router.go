@@ -20,16 +20,16 @@ type route struct {
 
 // Router is the main router for the application.
 type Router struct {
-	routingTable   []route
-	userController controllers.UserController
-	//orderController controllers.OrderController
+	routingTable    []route
+	userController  controllers.UserController
+	orderController controllers.OrderController
 }
 
 // NewRouter creates a new router with the given user controller.
-func NewRouter(u controllers.UserController) *Router {
+func NewRouter(u controllers.UserController, o controllers.OrderController) *Router {
 	return &Router{
-		userController: u,
-		//orderController: o,
+		userController:  u,
+		orderController: o,
 	}
 }
 
@@ -44,7 +44,7 @@ func (r *Router) setupRoutes() {
 		{http.MethodPost, regexp.MustCompile(`^/users$`), r.userController.CreateUser},
 		{http.MethodPut, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.UpdateUser},
 		{http.MethodDelete, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.DeleteUser},
-		//{http.MethodGet, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `/orders$`), r.orderController.GetOrders},
+		{http.MethodPost, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)/orders$`), r.orderController.CreateOrderByUserId},
 	}
 }
 
