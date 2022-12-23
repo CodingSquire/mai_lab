@@ -40,11 +40,10 @@ func main() {
 		userStorage = storage.NewPostgreStorage(pgClient)
 	}
 
-	userService := services.NewService(userStorage)
-
 	twiprService := services.NewTwirpService(userStorage)
 	rpc.NewUsersServer(twiprService)
 
+	userService := services.NewService(userStorage)
 	userHandler := rest.NewHandler(userService)
 	userHandler.Register(router)
 

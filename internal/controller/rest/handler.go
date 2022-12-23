@@ -37,9 +37,9 @@ func (h *handler) Register(router *httprouter.Router) {
 }
 
 func (h *handler) GetList(w http.ResponseWriter, r *http.Request) error {
+	log.Println("GET ALL USERS")
 	w.Header().Set("Content-Type", "application/json")
 
-	//TODO RESPONSE
 	all, err := h.service.GetAllUsers(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -106,7 +106,7 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	//TODO RESPONSE ??
+
 	json.NewEncoder(w).Encode(dto)
 
 	return nil

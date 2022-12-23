@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrorNotFound = NewAppError("not found", "", "us-0")
+	ErrorNotFound = NewAppError("not found", "", "code-0")
 )
 
 type AppError struct {
