@@ -8,10 +8,11 @@ import (
 	"orders/internal/dotenv"
 	"orders/internal/http"
 	"orders/rpc/orders"
+	"os"
 )
 
 func main() {
-	config := dotenv.Config()
+	dotenv.Config()
 
 	db, err := db.Init()
 	if err != nil {
@@ -33,5 +34,5 @@ func main() {
 	ordersApi := api.NewOrdersApi(orderController)
 	ordersApi.SetRoutes(app)
 
-	log.Fatal(app.Run(config.Get("PORT")))
+	log.Fatal(app.Run(os.Getenv("PORT")))
 }
