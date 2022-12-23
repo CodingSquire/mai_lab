@@ -3,14 +3,20 @@ package dtos
 import "orders/internal/models"
 
 type OrderPost struct {
-	Item   *string `json:"item"`
-	UserId *string `json:"user_id"`
+	ID      *string `json:"id"`
+	Item    *string `json:"item"`
+	UserId  *string `json:"user_id"`
 	Address *string `json:"address"`
-	Count *int `json:"count"`
+	Count   *int    `json:"count"`
 }
 
 func (o *OrderPost) MakeOrder() *models.Order {
 	order := &models.Order{}
+
+
+	if o.ID != nil {
+		order.ID = *o.ID
+	}
 
 	if o.Item != nil {
 		order.Item = *o.Item
