@@ -22,7 +22,7 @@ services:
       - "8080:8080"
     depends_on:
       - users
-      - cockroach
+      - cockroach-migrations
     environment:
       PORT: 8080
       COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
@@ -59,3 +59,15 @@ services:
     ports:
         - "26257:26257"
         - "8090:8080"
+    
+  cockroach-migrations:
+    build:
+      context: ./orders/tools/migrations
+      dockerfile: Dockerfile
+    environment:
+      COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
+    depends_on:
+      - cockroach
+    volumes:
+      - ./orders/internal/db/migrations:/app/src:ro
+    command: up ./src
