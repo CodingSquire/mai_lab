@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"users/internal/api/common"
+	"users/internal/contracts"
 	"users/rpc/orders"
 
 	"github.com/google/uuid"
@@ -12,16 +14,108 @@ import (
 
 type OrderController interface {
 	GetAllOrdersByUserId(w http.ResponseWriter, r *http.Request)
+	GetOrderById(w http.ResponseWriter, r *http.Request)
 	CreateOrderByUserId(w http.ResponseWriter, r *http.Request)
-	UpdateOrderByUserId(w http.ResponseWriter, r *http.Request)
-	DeleteOrderByUserId(w http.ResponseWriter, r *http.Request)
+	GetAllOrders(w http.ResponseWriter, r *http.Request)
+	UpdateOrderById(w http.ResponseWriter, r *http.Request)
+	DeleteOrderById(w http.ResponseWriter, r *http.Request)
 }
 
 type orderController struct {
 	ordersClient orders.Orders
+	service      contracts.UserService
 }
 
-// CreateOrderByUserId implements OrderController
+// DeleteOrderById gets the order id from the context and deletes the order.
+func (c *orderController) DeleteOrderById(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
+	orderId := r.Context().Value(common.ContextKeyParams).(map[string]string)["orderId"]
+	orderIdParsed, err := uuid.Parse(orderId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = c.ordersClient.DeleteOrder(r.Context(), &orders.DeleteOrderRequest{
+		Id: orderIdParsed.String(),
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetAllOrders gets all orders from the orders service.
+func (c *orderController) GetAllOrders(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
+	orders, err := c.ordersClient.GetAllOrders(r.Context(), &orders.GetAllOrdersRequest{})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(orders)
+}
+
+// UpdateOrderById updates an order by id.
+func (c *orderController) UpdateOrderById(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
+	orderId := r.Context().Value(common.ContextKeyParams).(map[string]string)["orderId"]
+	orderIdParsed, err := uuid.Parse(orderId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var order orders.Order
+	err = json.NewDecoder(r.Body).Decode(&order)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	order.Id = orderIdParsed.String()
+	updatedOrder, err := c.ordersClient.UpdateOrder(r.Context(), &orders.UpdateOrderRequest{
+		Order: &order,
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(updatedOrder)
+}
+
+// GetOrderByUserId gets order by id.
+func (c *orderController) GetOrderById(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
+	orderId := r.Context().Value(common.ContextKeyParams).(map[string]string)["orderId"]
+	orderIdParsed, err := uuid.Parse(orderId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	order, err := c.ordersClient.GetOrder(r.Context(), &orders.GetOrderRequest{
+		Id: orderIdParsed.String(),
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(order)
+}
+
+// CreateOrderByUserId creates an order by user id.
 func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, r)
 	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
@@ -30,6 +124,13 @@ func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	_, err = c.service.GetUserById(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	var order orders.Order
 	err = json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
@@ -45,6 +146,7 @@ func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Req
 	}
 	newOrder, err := c.ordersClient.CreateOrder(r.Context(), &orderRequest)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -53,25 +155,40 @@ func (c *orderController) CreateOrderByUserId(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(newOrder)
 }
 
-// DeleteOrderByUserId implements OrderController
-func (*orderController) DeleteOrderByUserId(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
-}
-
 // GetAllOrdersByUserId implements OrderController
-func (*orderController) GetAllOrdersByUserId(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
+func (c *orderController) GetAllOrdersByUserId(w http.ResponseWriter, r *http.Request) {
+	prepareResponse(w, r)
+	id := r.Context().Value(common.ContextKeyParams).(map[string]string)["id"]
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = c.service.GetUserById(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	orders, err := c.ordersClient.GetAllOrdersByUserId(r.Context(), &orders.GetAllOrdersByUserIdRequest{
+		UserId: userId.String(),
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(orders)
 }
 
-// UpdateOrderByUserId implements OrderController
-func (*orderController) UpdateOrderByUserId(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
-}
-
-func NewOrderController() OrderController {
+func NewOrderController(service contracts.UserService) OrderController {
 	ordersClient := orders.NewOrdersProtobufClient(os.Getenv("ORDERS_URL"), &http.Client{})
 
 	return &orderController{
 		ordersClient: ordersClient,
+		service:      service,
 	}
 }

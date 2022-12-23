@@ -45,6 +45,11 @@ func (r *Router) setupRoutes() {
 		{http.MethodPut, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.UpdateUser},
 		{http.MethodDelete, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)$`), r.userController.DeleteUser},
 		{http.MethodPost, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)/orders$`), r.orderController.CreateOrderByUserId},
+		{http.MethodGet, regexp.MustCompile(`^/users/(?P<id>` + idGroup + `)/orders$`), r.orderController.GetAllOrdersByUserId},
+		{http.MethodGet, regexp.MustCompile(`^orders$`), r.orderController.GetAllOrders},
+		{http.MethodGet, regexp.MustCompile(`^/orders/(?P<orderId>` + idGroup + `)$`), r.orderController.GetOrderById},
+		{http.MethodPut, regexp.MustCompile(`^/orders/(?P<orderId>` + idGroup + `)$`), r.orderController.UpdateOrderById},
+		{http.MethodDelete, regexp.MustCompile(`^/orders/(?P<orderId>` + idGroup + `)$`), r.orderController.DeleteOrderById},
 	}
 }
 
