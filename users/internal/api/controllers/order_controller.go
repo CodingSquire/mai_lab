@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"users/internal/api/common"
 	"users/rpc/orders"
 
@@ -68,7 +69,7 @@ func (*orderController) UpdateOrderByUserId(w http.ResponseWriter, r *http.Reque
 }
 
 func NewOrderController() OrderController {
-	ordersClient := orders.NewOrdersProtobufClient("http://localhost:8080", &http.Client{})
+	ordersClient := orders.NewOrdersProtobufClient(os.Getenv("ORDERS_URL"), &http.Client{})
 
 	return &orderController{
 		ordersClient: ordersClient,
