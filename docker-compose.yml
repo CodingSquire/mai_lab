@@ -51,7 +51,7 @@ services:
   cockroach:
     image: cockroachdb/cockroach:v22.2.1
     restart: always
-    command: start --insecure
+    command: start-single-node --insecure
     environment:
       COCKROACH_DATABASE: defaultdb
       COCKROACH_USER: user
