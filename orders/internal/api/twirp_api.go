@@ -24,12 +24,12 @@ func (s *TwirpServer) CreateOrder(ctx context.Context, req *orders.CreateOrderRe
 		Address: req.GetAdress(),
 	}
 
-	err := s.OrderController.PostOrder(&order)
+	createdOrder, err := s.OrderController.PostOrder(&order)
 	if err != nil {
 		return nil, err
 	}
 
-	twirpOrder := dtos.TwirpFromOrder(&order)
+	twirpOrder := dtos.TwirpFromOrder(createdOrder)
 	return &orders.CreateOrderResponse{Order: twirpOrder}, nil
 }
 

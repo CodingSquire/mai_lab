@@ -94,7 +94,7 @@ func (o *OrderMemController) PatchOrderById(id string, order *models.Order) (err
 }
 
 // PostOrder setting new order in memory
-func (o *OrderMemController) PostOrder(order *models.Order) (err error) {
+func (o *OrderMemController) PostOrder(order *models.Order) (*models.Order, error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
@@ -107,5 +107,5 @@ func (o *OrderMemController) PostOrder(order *models.Order) (err error) {
 	order.UpdatedAt = timeNow
 	o.cache[order.ID] = order
 
-	return
+	return order, nil
 }

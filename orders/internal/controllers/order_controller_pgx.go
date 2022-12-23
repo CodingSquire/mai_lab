@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"database/sql"
-	"github.com/innerave/mai_lab/orders/internal/models"
 	"log"
 	"sync"
+	"time"
+
+	"github.com/innerave/mai_lab/orders/internal/models"
 
 	"github.com/lucsky/cuid"
 )
@@ -141,7 +143,7 @@ func (o *OrderPgxController) PatchOrderById(id string, order *models.Order) (err
 }
 
 // PostOrder implements OrderController
-func (o *OrderPgxController) PostOrder(order *models.Order) (err error) {
+func (o *OrderPgxController) PostOrder(order *models.Order) (*models.Order, error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
 
@@ -149,16 +151,27 @@ func (o *OrderPgxController) PostOrder(order *models.Order) (err error) {
 		order.ID = cuid.New()
 	}
 
-	_, err = o.db.Exec(
-		"INSERT INTO orders (id, userId, item, adress, count) VALUES ($1, $2, $3, $4, $5)",
+	now := time.Now()
+
+	order.CreatedAt = now
+	order.UpdatedAt = now
+
+	_, err := o.db.Exec(
+		"INSERT INTO orders (id, userId, item, adress, count, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		order.ID,
 		order.UserID,
 		order.Item,
 		order.Address,
 		order.Count,
+		order.CreatedAt,
+		order.UpdatedAt,
 	)
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
 
-	return
+	return order, err
 }
 
 func NewPgxController(db *sql.DB) OrderController {

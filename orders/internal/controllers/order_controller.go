@@ -8,5 +8,5 @@ type OrderController interface {
 	GetOrderById(id string) (*models.Order, error)
 	DeleteOrderById(id string) error
 	PatchOrderById(id string, order *models.Order) error
-	PostOrder(order *models.Order) error
+	PostOrder(order *models.Order) (*models.Order, error)
 }

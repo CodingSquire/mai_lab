@@ -28,7 +28,7 @@ func TestPGXOrderController(t *testing.T) {
 		Count:   10,
 	}
 
-	err = controller.PostOrder(&order)
+	_, err = controller.PostOrder(&order)
 	if err != nil {
 		t.Errorf("Error posting order: %v", err)
 	}
