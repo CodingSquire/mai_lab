@@ -12,7 +12,7 @@ services:
     environment:
       MONGO_URI: mongodb://root:example@localhost:27017
       PORT_MAIN: 5050
-      ORDERS_URL: orders:8080
+      ORDERS_URL: http://orders:8080
   
   orders:
     build:
@@ -22,6 +22,10 @@ services:
       - "8080:8080"
     depends_on:
       - users
+      - cockroach
+    environment:
+      PORT: 8080
+      COCKROACH_DB: postgresql://user:password@cockroach:26257/defaultdb
 
   mongo:
     image: mongo
@@ -43,3 +47,15 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+  
+  cockroach:
+    image: cockroachdb/cockroach:v22.2.1
+    restart: always
+    command: start --insecure
+    environment:
+      COCKROACH_DATABASE: defaultdb
+      COCKROACH_USER: user
+      COCKROACH_PASSWORD: password
+    ports:
+        - "26257:26257"
+        - "80:8080"
