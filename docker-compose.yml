@@ -67,7 +67,7 @@ services:
     environment:
       COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
     depends_on:
-      - cockroach
+      - orders
     volumes:
       - ./orders/tools/migrations/migrations:/app/src:ro
     command: up ./src
