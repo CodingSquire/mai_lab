@@ -1,11 +1,12 @@
-FROM golang:alpine AS b
+FROM golang:alpine AS builder
 WORKDIR /app
 ADD . /app
 RUN cd /app && go build -o users ./cmd/main.go
 
 FROM alpine
-WORKDIR /a
-COPY --from=b /app/users /app
+WORKDIR /app
+COPY app.env .
+COPY --from=builder /app/users /app
 
 EXPOSE 8080
-ENTRYPOINT .
+CMD ["./users"]

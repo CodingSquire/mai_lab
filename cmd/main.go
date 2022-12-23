@@ -22,10 +22,12 @@ func main() {
 	log.Println("create router")
 	router := httprouter.New()
 
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(".")
 	pgConfig := postgresql.NewPgConfig(
-		cfg.PostgreSQL.Username, cfg.PostgreSQL.Password,
-		cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
+		//cfg.PostgreSQL.Username, cfg.PostgreSQL.Password,
+		//cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
+		cfg.Username, cfg.Password,
+		cfg.Host, cfg.Portdb, cfg.Database,
 	)
 
 	// Attempt to connect to the database
@@ -50,12 +52,12 @@ func main() {
 func startHTTP(router *httprouter.Router, cfg *config.Config) {
 	log.Println("HTTP Server initializing")
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.BindIP, cfg.Port))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Printf("server is listening port %s:%s", cfg.HTTP.BindIP, cfg.HTTP.Port)
+	log.Printf("server is listening port %s:%s", cfg.BindIP, cfg.Port)
 
 	server := &http.Server{
 		Handler:      router,

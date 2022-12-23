@@ -4,35 +4,46 @@ import (
 	"log"
 	"sync"
 
-	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/spf13/viper"
 )
 
+// Config stores all configuration of the application
 type Config struct {
-	isDebug bool `yaml:"is_debug" env-required:"true"`
-	HTTP    struct {
-		Type   string `yaml:"type" env-default:"port"`
-		BindIP string `yaml:"bind_ip" env-default:"127.0.0.1"`
-		Port   string `yaml:"port" env-default:"8080"`
-	} `yaml:"http"`
-	PostgreSQL struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		Database string `yaml:"database"`
-	} `yaml:"postgresql"`
+	//	HTTP struct {
+	BindIP string `mapstructure:"HTTP_IP"`
+	Port   string `mapstructure:"HTTP_PORT"`
+	//	}
+	//	PostgreSQL struct {
+	Username string `mapstructure:"PSQL_USERNAME"`
+	Password string `mapstructure:"PSQL_PASSWORD"`
+	Host     string `mapstructure:"PSQL_HOST"`
+	Portdb   string `mapstructure:"PSQL_PORT"`
+	Database string `mapstructure:"PSQL_DATABASE"`
+	//	}
 }
 
 var instance *Config
 var once sync.Once
 
-func GetConfig() *Config {
+func GetConfig(path string) *Config {
 	once.Do(func() {
 		log.Println("read application config")
 		instance = &Config{}
-		if err := cleanenv.ReadConfig("config.yml", instance); err != nil {
-			help, _ := cleanenv.GetDescription(instance, nil)
-			log.Println(help)
+
+		viper.AddConfigPath(path)
+		viper.AddConfigPath(".")
+
+		viper.SetConfigName("app") // name of config file (without extension)
+		viper.SetConfigType("env") // REQUIRED if the config file does not have the extension in the name
+
+		viper.AutomaticEnv()
+
+		err := viper.ReadInConfig() // Find and read the config file
+		if err != nil {
+			log.Fatalln(err)
+		}
+		err = viper.Unmarshal(&instance)
+		if err != nil {
 			log.Fatalln(err)
 		}
 	})

@@ -30,7 +30,7 @@ func NewPgConfig(username string, password string, host string, port string, dat
 func NewClient(ctx context.Context, cfg *pgConfig) (pool *pgxpool.Pool, err error) {
 
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
-
+	log.Println(dsn)
 	pool, err = pgxpool.New(ctx, dsn)
 	if err != nil {
 		log.Fatalf("Unable to create connection pool: %v\n", err)
