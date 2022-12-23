@@ -17,7 +17,7 @@ services:
   orders:
     build:
       context: ./orders
-      dockerfile: ./build/orders.dockerfile
+      dockerfile: ./build/Dockerfile.orders
     ports:
       - "8080:8080"
     depends_on:
@@ -63,7 +63,7 @@ services:
   cockroach-migrations:
     build:
       context: ./orders
-      dockerfile: ./build/migrations.dockerfile
+      dockerfile: ./build/Dockerfile.migrations
     environment:
       COCKROACH_DB: postgresql://piloswine:password@cockroach:26257/defaultdb
     depends_on:
