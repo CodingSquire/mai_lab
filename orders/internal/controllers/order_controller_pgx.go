@@ -3,7 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"log"
-	"orders/internal/models"
+	"github.com/innerave/mai_lab/orders/internal/models"
 	"sync"
 
 	"github.com/lucsky/cuid"

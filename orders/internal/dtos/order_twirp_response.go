@@ -1,8 +1,8 @@
 package dtos
 
 import (
-	"orders/internal/models"
-	"orders/rpc/orders"
+	"github.com/innerave/mai_lab/orders/internal/models"
+	"github.com/innerave/mai_lab/orders/rpc/orders"
 )
 
 // TwirpFromOrder converts a model.Order to a rpc.orders.Order

@@ -3,7 +3,7 @@ package http
 import (
 	"fmt"
 	"net/http"
-	"orders/internal/table"
+	"github.com/innerave/mai_lab/orders/internal/table"
 	"reflect"
 )
 

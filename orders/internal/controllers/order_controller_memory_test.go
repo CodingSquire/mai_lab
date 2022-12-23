@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"orders/internal/models"
+	"github.com/innerave/mai_lab/orders/internal/models"
 	"testing"
 
 	"github.com/lucsky/cuid"

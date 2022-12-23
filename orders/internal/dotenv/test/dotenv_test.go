@@ -1,7 +1,7 @@
 package test
 
 import (
-	"orders/internal/dotenv"
+	"github.com/innerave/mai_lab/orders/internal/dotenv"
 	"os"
 	"testing"
 )

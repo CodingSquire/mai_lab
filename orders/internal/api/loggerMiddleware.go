@@ -2,7 +2,7 @@ package api
 
 import (
 	"log"
-	"orders/internal/http"
+	"github.com/innerave/mai_lab/orders/internal/http"
 	"time"
 )
 

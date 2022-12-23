@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"errors"
-	"orders/internal/models"
+	"github.com/innerave/mai_lab/orders/internal/models"
 	"sync"
 	"time"
 

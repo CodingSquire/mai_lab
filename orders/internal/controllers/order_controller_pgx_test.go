@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"orders/internal/db"
-	"orders/internal/dotenv"
-	"orders/internal/models"
+	"github.com/innerave/mai_lab/orders/internal/db"
+	"github.com/innerave/mai_lab/orders/internal/dotenv"
+	"github.com/innerave/mai_lab/orders/internal/models"
 	"testing"
 
 	"github.com/lucsky/cuid"

@@ -1,6 +1,6 @@
 package controllers
 
-import "orders/internal/models"
+import "github.com/innerave/mai_lab/orders/internal/models"
 
 type OrderController interface {
 	GetAllOrders() []models.Order

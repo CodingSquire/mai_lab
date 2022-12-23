@@ -2,10 +2,10 @@ package api
 
 import (
 	context "context"
-	"orders/internal/controllers"
-	"orders/internal/dtos"
-	"orders/internal/models"
-	"orders/rpc/orders"
+	"github.com/innerave/mai_lab/orders/internal/controllers"
+	"github.com/innerave/mai_lab/orders/internal/dtos"
+	"github.com/innerave/mai_lab/orders/internal/models"
+	"github.com/innerave/mai_lab/orders/rpc/orders"
 
 	"github.com/lucsky/cuid"
 )

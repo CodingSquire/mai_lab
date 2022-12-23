@@ -2,9 +2,9 @@ package api
 
 import (
 	"fmt"
-	"orders/internal/controllers"
-	"orders/internal/dtos"
-	"orders/internal/http"
+	"github.com/innerave/mai_lab/orders/internal/controllers"
+	"github.com/innerave/mai_lab/orders/internal/dtos"
+	"github.com/innerave/mai_lab/orders/internal/http"
 )
 
 type OrdersApi struct {

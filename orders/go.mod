@@ -1,4 +1,4 @@
-module orders
+module github.com/innerave/mai_lab/orders
 
 go 1.19
 

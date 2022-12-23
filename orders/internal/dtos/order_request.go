@@ -1,6 +1,6 @@
 package dtos
 
-import "orders/internal/models"
+import "github.com/innerave/mai_lab/orders/internal/models"
 
 type OrderPost struct {
 	ID      *string `json:"id"`
