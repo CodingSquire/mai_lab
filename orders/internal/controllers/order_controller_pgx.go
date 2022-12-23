@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"database/sql"
-	"log"
 	"github.com/innerave/mai_lab/orders/internal/models"
+	"log"
 	"sync"
 
 	"github.com/lucsky/cuid"
@@ -122,7 +122,6 @@ func (o *OrderPgxController) GetOrderById(id string) (*models.Order, error) {
 func (o *OrderPgxController) PatchOrderById(id string, order *models.Order) (err error) {
 	o.mut.Lock()
 	defer o.mut.Unlock()
-
 
 	_, err = o.db.Exec(
 		"UPDATE orders SET userId = $1, item = $2, adress = $3, count = $4, updatedAt = NOW() WHERE id = $5",

@@ -2,8 +2,8 @@ package http
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/innerave/mai_lab/orders/internal/table"
+	"net/http"
 	"reflect"
 )
 
@@ -22,19 +22,19 @@ type HttpRouter interface {
 // Main app structure with inner map of global-like objects
 type HttpApp struct {
 	Router Router
-	State map[string]interface{}
+	State  map[string]interface{}
 }
 
 // Group for inner nesting
 type HttpGroup struct {
 	path string
-	app *HttpApp
+	app  *HttpApp
 }
 
 func NewApp() *HttpApp {
 	return &HttpApp{
 		Router: Router{},
-		State: make(map[string]interface{}),
+		State:  make(map[string]interface{}),
 	}
 }
 
@@ -59,7 +59,7 @@ func (a *HttpApp) MakeInfoTable(port string) string {
 	}
 
 	table.AppendLine("Runtime:")
-	table.AppendLine("localhost:"+port)
+	table.AppendLine("localhost:" + port)
 
 	table.PrependLine("Routes:")
 
@@ -94,48 +94,47 @@ func (a *HttpApp) Put(pattern string, handler RouteHandler) {
 }
 func (a *HttpApp) Use(handlers ...RouteHandler) {
 	for _, handler := range handlers {
-		a.Router.SetHandler("*", "/",  handler)
+		a.Router.SetHandler("*", "/", handler)
 	}
 }
 
-
 // Gouping for subnesting
 func (a *HttpApp) Group(path string) HttpRouter {
-	return &HttpGroup {
+	return &HttpGroup{
 		path: path,
-		app: a,
+		app:  a,
 	}
 }
 
 // Same methods as fot HttpApp with route concatination
 
 func (g *HttpGroup) Group(path string) HttpRouter {
-	return &HttpGroup {
+	return &HttpGroup{
 		path: g.path + path,
-		app: g.app,
+		app:  g.app,
 	}
 }
 
 func (g *HttpGroup) Handle(pattern string, handler http.Handler) {
-	g.app.Handle(g.path + pattern, handler)
+	g.app.Handle(g.path+pattern, handler)
 }
 func (g *HttpGroup) Use(handlers ...RouteHandler) {
 	for _, handler := range handlers {
-		g.app.Router.SetHandler("*", g.path,  handler)
+		g.app.Router.SetHandler("*", g.path, handler)
 	}
 }
 func (g *HttpGroup) Get(pattern string, handler RouteHandler) {
-	g.app.Get(g.path + pattern, handler)
+	g.app.Get(g.path+pattern, handler)
 }
 func (g *HttpGroup) Post(pattern string, handler RouteHandler) {
-	g.app.Post(g.path + pattern, handler)
+	g.app.Post(g.path+pattern, handler)
 }
 func (g *HttpGroup) Delete(pattern string, handler RouteHandler) {
-	g.app.Delete(g.path + pattern, handler)
+	g.app.Delete(g.path+pattern, handler)
 }
 func (g *HttpGroup) Patch(pattern string, handler RouteHandler) {
-	g.app.Patch(g.path + pattern, handler)
+	g.app.Patch(g.path+pattern, handler)
 }
 func (g *HttpGroup) Put(pattern string, handler RouteHandler) {
-	g.app.Put(g.path + pattern, handler)
+	g.app.Put(g.path+pattern, handler)
 }

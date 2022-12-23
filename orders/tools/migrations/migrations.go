@@ -32,4 +32,3 @@ func main() {
 		log.Fatalf("Error: %s", err)
 	}
 }
-

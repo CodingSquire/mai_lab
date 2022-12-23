@@ -12,7 +12,7 @@ type OrdersApi struct {
 }
 
 // NewOrdersApi create service-like api object
-func NewOrdersApi(orderController controllers.OrderController) *OrdersApi {	
+func NewOrdersApi(orderController controllers.OrderController) *OrdersApi {
 	return &OrdersApi{
 		OrderController: orderController,
 	}
@@ -23,7 +23,7 @@ func (a *OrdersApi) SetRoutes(r http.HttpRouter) {
 	order := r.Group("/order")
 
 	//order.Use(LoggerMiddleware)
-	
+
 	order.Get("/:id", a.GetOrder)
 	order.Get("", a.GetAllOrders)
 	order.Delete("/:id", a.DeleteOrder)

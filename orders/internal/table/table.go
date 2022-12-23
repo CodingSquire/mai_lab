@@ -41,7 +41,7 @@ func GetColorByMethod(method string) string {
 }
 
 type TableBuilder struct {
-	maxLength int
+	maxLength     int
 	stringBuilder strings.Builder
 }
 
@@ -52,7 +52,7 @@ func Max(x, y int) int {
 	return x
 }
 
-func (b *TableBuilder) AppendRoute(method ,path string) {
+func (b *TableBuilder) AppendRoute(method, path string) {
 	color := GetColorByMethod(method)
 	var row strings.Builder
 
@@ -70,7 +70,7 @@ func (b *TableBuilder) AppendRoute(method ,path string) {
 	row.WriteString("\n")
 
 	formattedString := row.String()
-	stringLength := utf8.RuneCountInString(formattedString) - utf8.RuneCountInString(COLOR_DEFAULT) * 5 - 2
+	stringLength := utf8.RuneCountInString(formattedString) - utf8.RuneCountInString(COLOR_DEFAULT)*5 - 2
 
 	b.maxLength = Max(stringLength, b.maxLength)
 	b.stringBuilder.WriteString(formattedString)
@@ -78,10 +78,10 @@ func (b *TableBuilder) AppendRoute(method ,path string) {
 
 func (b *TableBuilder) getTop() string {
 	var row strings.Builder
-	
+
 	row.WriteString(LEFT_PADDING)
 	row.WriteString(TABLE_TOP_LEFT)
-	row.WriteString(strings.Repeat(TABLE_TOP, b.maxLength - 2))
+	row.WriteString(strings.Repeat(TABLE_TOP, b.maxLength-2))
 	row.WriteString(TABLE_TOP_RIGHT)
 	row.WriteString("\n")
 
@@ -90,29 +90,29 @@ func (b *TableBuilder) getTop() string {
 
 func (b *TableBuilder) getBottom() string {
 	var row strings.Builder
-	
+
 	row.WriteString(LEFT_PADDING)
 	row.WriteString(TABLE_BOTTOM_LEFT)
-	row.WriteString(strings.Repeat(TABLE_BOTTOM, b.maxLength - 2))
+	row.WriteString(strings.Repeat(TABLE_BOTTOM, b.maxLength-2))
 	row.WriteString(TABLE_BOTTOM_RIGHT)
 	row.WriteString("\n")
 
 	return row.String()
 }
 
-func (b * TableBuilder) getLine(symb string) string {
+func (b *TableBuilder) getLine(symb string) string {
 	var row strings.Builder
-	
+
 	row.WriteString(LEFT_PADDING)
 	row.WriteString(TABLE_LEFT)
-	row.WriteString(strings.Repeat(symb, b.maxLength - 2))
+	row.WriteString(strings.Repeat(symb, b.maxLength-2))
 	row.WriteString(TABLE_RIGHT)
 	row.WriteString("\n")
 
 	return row.String()
 }
 
-func (b * TableBuilder) makeLine(symb string) {
+func (b *TableBuilder) makeLine(symb string) {
 	b.stringBuilder.WriteString(b.getLine(symb))
 }
 
@@ -131,7 +131,7 @@ func (b *TableBuilder) makeMsgLine(message *string) {
 	b.stringBuilder.WriteString(LEFT_PADDING)
 	b.stringBuilder.WriteString(TABLE_LEFT)
 	b.stringBuilder.WriteString(messageFormatted)
-	b.stringBuilder.WriteString(strings.Repeat(" ", b.maxLength - messageLength - 2))
+	b.stringBuilder.WriteString(strings.Repeat(" ", b.maxLength-messageLength-2))
 	b.stringBuilder.WriteString(TABLE_RIGHT)
 	b.stringBuilder.WriteString("\n")
 }

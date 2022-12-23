@@ -12,10 +12,10 @@ type Dotenv struct {
 
 func Config() *Dotenv {
 	ret := make(map[string]string)
-	dotenv, err := os.Open(".env");
+	dotenv, err := os.Open(".env")
 
 	if !os.IsNotExist(err) {
-		scanner := bufio.NewScanner(dotenv);
+		scanner := bufio.NewScanner(dotenv)
 
 		for scanner.Scan() {
 			keyValue := strings.Split(scanner.Text(), "=")

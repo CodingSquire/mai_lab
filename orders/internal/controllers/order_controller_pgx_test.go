@@ -20,12 +20,12 @@ func TestPGXOrderController(t *testing.T) {
 
 	ID := cuid.New()
 	userID := cuid.New()
-	order := models.Order {
-		ID: ID,
-		UserID: userID,
-		Item: "CPU",
+	order := models.Order{
+		ID:      ID,
+		UserID:  userID,
+		Item:    "CPU",
 		Address: "123 Main St",
-		Count: 10,
+		Count:   10,
 	}
 
 	err = controller.PostOrder(&order)
@@ -46,12 +46,11 @@ func TestPGXOrderController(t *testing.T) {
 		t.Errorf("Error mismatched order count, got %v, want %v, orders: %v", len(orders), 1, orders)
 	}
 
-
-	new_order := models.Order {
-		UserID: userID,
-		Item: "GPU",
+	new_order := models.Order{
+		UserID:  userID,
+		Item:    "GPU",
 		Address: "Moscov",
-		Count: 1,
+		Count:   1,
 	}
 	err = controller.PatchOrderById(ID, &new_order)
 	if err != nil {

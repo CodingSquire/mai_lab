@@ -13,7 +13,6 @@ type OrderPost struct {
 func (o *OrderPost) MakeOrder() *models.Order {
 	order := &models.Order{}
 
-
 	if o.ID != nil {
 		order.ID = *o.ID
 	}

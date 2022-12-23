@@ -13,12 +13,12 @@ func TestOrderControllerMemory(t *testing.T) {
 	id := cuid.New()
 	userID := cuid.New()
 
-	order := models.Order {
-		ID:     id,
-		UserID: userID,
+	order := models.Order{
+		ID:      id,
+		UserID:  userID,
 		Address: "",
-		Item: "",
-		Count: 0,
+		Item:    "",
+		Count:   0,
 	}
 
 	controller.PostOrder(&order)
@@ -32,11 +32,11 @@ func TestOrderControllerMemory(t *testing.T) {
 		t.Error("Error getting order")
 	}
 
-	new_order := models.Order {
-		UserID: userID,
+	new_order := models.Order{
+		UserID:  userID,
 		Address: "new_address",
-		Item: "new_item",
-		Count: 1,
+		Item:    "new_item",
+		Count:   1,
 	}
 	err = controller.PatchOrderById(id, &new_order)
 	if err != nil {

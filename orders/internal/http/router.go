@@ -37,7 +37,6 @@ type Router struct {
 	routes []*Route
 }
 
-
 // Next - walking on routes till error or handler
 func (r *RouteContext) Next() error {
 	// TODO: can add may handlers on route
@@ -69,7 +68,6 @@ func (r *RouteContext) Body() io.ReadCloser {
 func (r *RouteContext) DecodeJSON(obj any) error {
 	return json.NewDecoder(r.Body()).Decode(obj)
 }
-
 
 // SendError making response with error
 func (r *RouteContext) SendError(error error) {
@@ -116,7 +114,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request, state *m
 		R:      r,
 		Router: router,
 		state:  state,
-		index: -1,
+		index:  -1,
 	}
 	err := router.next(ctx)
 
@@ -131,7 +129,7 @@ func (router *Router) next(ctx *RouteContext) (err error) {
 		return fmt.Errorf("No routes found")
 	}
 
-	for ctx.index < len(router.routes) - 1 {
+	for ctx.index < len(router.routes)-1 {
 		// getting new route
 		ctx.index++
 		route := router.routes[ctx.index]
@@ -174,7 +172,7 @@ func parsePattern(pattern string) *regexp.Regexp {
 }
 
 // SetLegacyHandler is a wrapper for http.HandleFunc
-func (r * Router) SetLegacyHandler(pathRaw string, handler http.Handler) {
+func (r *Router) SetLegacyHandler(pathRaw string, handler http.Handler) {
 	r.SetHandler("*", pathRaw, func(ctx *RouteContext) {
 		handler.ServeHTTP(ctx.W, ctx.R)
 	})
