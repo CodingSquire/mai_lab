@@ -142,7 +142,7 @@ func (rt *Router) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nbu, err := rt.us.Delete(uid)
+	err = rt.us.Delete(uid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "not found", http.StatusNotFound)
@@ -152,14 +152,7 @@ func (rt *Router) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(
-		User{
-			ID:    nbu.ID,
-			Name:  nbu.Name,
-			Email: nbu.Email,
-			Phone: nbu.Phone,
-		},
-	)
+	_ = json.NewEncoder(w).Encode(uid)
 }
 
 // /search?name=...

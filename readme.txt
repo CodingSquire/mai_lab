@@ -1,3 +1,13 @@
+docker-compose build
+docker-compose up
+
+migration:
+docker run -v $/migrations:/migrations --network mai_lab_go_app migrate/migrate -path=/migrations/ -database postgres://postgres:postgres@postgres_container:5432/postgres?sslmode=disable up 2
+
+serv:
+postgres all
+
+
 create:
 curl  -X POST -d '{"name":"user5671", "email": "oleg@kovinev.ru", "Phone":"9167743904"}' localhost:8000/create
 

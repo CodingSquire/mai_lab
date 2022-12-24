@@ -48,15 +48,19 @@ func (us *Users) Read(uid uuid.UUID) (*User, error) {
 	return u, nil
 }
 
-func (us *Users) Delete(uid uuid.UUID) (*User, error) { // удаление по uuid
+func (us *Users) Delete(uid uuid.UUID) error { // удаление по uuid
 	//delete by uuid
-	u, err := us.ustore.Read(uid) // сначала читаем по uuid
+	// u, err := us.ustore.Read(uid) // сначала читаем по uuid
+
+	// err := us.ustore.Delete(uid)
+
 	//first read by uuid
-	if err != nil {
-		return nil, fmt.Errorf("search user error: %w", err)
-	}
-	return u, us.ustore.Delete(uid) //ошибка прочитанная из стора и ошибка из стора.
+	// if err != nil {
+	// 	return nil, fmt.Errorf("search user error: %w", err)
+	// }
 	//an error read from the store and an error from the store.
+
+	return us.ustore.Delete(uid) //ошибка прочитанная из стора и ошибка из стора.
 }
 
 func (us *Users) SearchUsers(s string) (chan User, error) { //возврат канала с юзерами

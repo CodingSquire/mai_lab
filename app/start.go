@@ -11,10 +11,9 @@ type App struct {
 }
 
 func NewApp(ust user.UserStore) *App { // init app, back billed app
-	a := &App{
+	return &App{
 		us: user.NewUsers(ust),
 	}
-	return a
 }
 
 type HTTPServer interface { //start - внешняя приложуха. Не должна знать об api(внешний адаптер)
